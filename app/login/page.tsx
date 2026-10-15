@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BRANCHES } from '@/lib/constants';
-import { createClient } from '@/lib/supabase/client';
 import {
   LogIn,
   UserPlus,
@@ -45,8 +44,6 @@ function AuthContent() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(true);
 
-  const supabase = createClient();
-
   useEffect(() => {
     if (searchParams.get('mode') === 'signup') {
       setMode('signup');
@@ -66,55 +63,32 @@ function AuthContent() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
+      const data = await res.json();
 
-      if (error) {
-        // Fallback for demo mode if Supabase user is not yet created
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Authentication failed. Please check credentials.');
+      } else {
         const user = {
-          name: loginEmail.split('@')[0] || 'Student',
-          email: loginEmail,
-          role: loginEmail.includes('admin') ? 'ADMIN' : 'STUDENT',
-          branch: 'CSE',
+          name: data.user.full_name || loginEmail.split('@')[0],
+          email: data.user.email,
+          role: data.user.role === 'admin' ? 'ADMIN' : 'STUDENT',
+          branch: data.user.branch || 'CSE',
         };
         localStorage.setItem('capstonia_user', JSON.stringify(user));
         window.dispatchEvent(new Event('authChange'));
 
-        setSuccessMsg('Signed in! Redirecting...');
+        setSuccessMsg('Successfully authenticated with MongoDB! Redirecting...');
         setTimeout(() => {
           router.push(user.role === 'ADMIN' ? '/admin' : '/dashboard');
         }, 800);
-      } else {
-        const user = {
-          name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Student',
-          email: data.user.email,
-          role: 'STUDENT',
-          branch: 'CSE',
-        };
-        localStorage.setItem('capstonia_user', JSON.stringify(user));
-        window.dispatchEvent(new Event('authChange'));
-
-        setSuccessMsg('Successfully authenticated with Supabase! Redirecting...');
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 800);
       }
     } catch {
-      const user = {
-        name: loginEmail.split('@')[0] || 'Student',
-        email: loginEmail,
-        role: loginEmail.includes('admin') ? 'ADMIN' : 'STUDENT',
-        branch: 'CSE',
-      };
-      localStorage.setItem('capstonia_user', JSON.stringify(user));
-      window.dispatchEvent(new Event('authChange'));
-
-      setSuccessMsg('Signed in! Redirecting...');
-      setTimeout(() => {
-        router.push(user.role === 'ADMIN' ? '/admin' : '/dashboard');
-      }, 800);
+      setErrorMsg('Network or database connection error.');
     } finally {
       setLoading(false);
     }
@@ -143,53 +117,40 @@ function AuthContent() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: signupEmail,
-        password: signupPassword,
-        options: {
-          data: {
-            full_name: fullName,
-            phone,
-            branch,
-          },
-        },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: signupEmail,
+          password: signupPassword,
+          phone,
+          branch,
+        }),
       });
+      const data = await res.json();
 
-      const user = {
-        name: fullName,
-        email: signupEmail,
-        phone,
-        branch,
-        role: 'STUDENT',
-      };
-
-      localStorage.setItem('capstonia_user', JSON.stringify(user));
-      window.dispatchEvent(new Event('authChange'));
-
-      if (error) {
-        setSuccessMsg('Account registered locally! Redirecting to your dashboard...');
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Failed to create account.');
       } else {
-        setSuccessMsg('Account registered with Supabase! Redirecting to your dashboard...');
+        const user = {
+          name: fullName,
+          email: signupEmail,
+          phone,
+          branch,
+          role: 'STUDENT',
+        };
+
+        localStorage.setItem('capstonia_user', JSON.stringify(user));
+        window.dispatchEvent(new Event('authChange'));
+
+        setSuccessMsg('Account registered in MongoDB fastrack_db! Redirecting...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
       }
-
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
     } catch {
-      const user = {
-        name: fullName,
-        email: signupEmail,
-        phone,
-        branch,
-        role: 'STUDENT',
-      };
-      localStorage.setItem('capstonia_user', JSON.stringify(user));
-      window.dispatchEvent(new Event('authChange'));
-
-      setSuccessMsg('Account registered! Redirecting to your dashboard...');
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
+      setErrorMsg('Network error connecting to database.');
     } finally {
       setLoading(false);
     }

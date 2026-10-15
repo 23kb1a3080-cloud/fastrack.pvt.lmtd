@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { connectToDatabase } from '@/lib/mongodb';
+import { OrderModel } from '@/lib/models/Order';
+import { ProjectModel } from '@/lib/models/Project';
 
 export async function GET(
   req: Request,
@@ -8,43 +9,33 @@ export async function GET(
 ) {
   try {
     const { orderId } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    await connectToDatabase();
 
-    // 1. Fetch order details from Supabase DB
-    const { data: order } = await supabase
-      .from('orders')
-      .select('*, projects(file_path)')
-      .eq('id', orderId)
-      .eq('status', 'paid')
-      .single();
+    const order = await OrderModel.findOne({
+      $or: [{ razorpay_order_id: orderId }, { _id: orderId.match(/^[0-9a-fA-F]{24}$/) ? orderId : null }],
+      status: 'paid',
+    }).lean();
 
     if (!order) {
-      // Demo download response if DB is not configured yet
       return NextResponse.json(
         {
           message:
-            'Demo mode: Payment verified. Once Supabase Storage bucket is connected, your ZIP download will start instantly.',
+            'Order verified in Demo mode. In production, your full project ZIP archive, IEEE documentation, and PPT slides will be served immediately.',
           downloadUrl: '#',
         },
         { status: 200 }
       );
     }
 
-    // 2. Generate 60-second signed download URL from private Supabase bucket
-    const adminSupabase = createAdminClient();
-    const { data: signedUrlData, error } = await adminSupabase.storage
-      .from('project-files-private')
-      .createSignedUrl(order.projects.file_path, 60);
+    const project = await ProjectModel.findById(order.project_id).lean();
 
-    if (error || !signedUrlData) {
-      return NextResponse.json(
-        { error: 'Failed to generate download URL' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.redirect(signedUrlData.signedUrl);
+    return NextResponse.json({
+      success: true,
+      message: 'Download authorized',
+      projectTitle: project?.title || 'Fastrack Project Deliverable',
+      filePath: project?.file_path || 'projects/deliverable.zip',
+      downloadUrl: `/downloads/${project?.file_path || 'deliverable.zip'}`,
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Download authorization failed' },

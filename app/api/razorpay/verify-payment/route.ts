@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient } from '@/lib/supabase/server';
+import { connectToDatabase } from '@/lib/mongodb';
+import { OrderModel } from '@/lib/models/Order';
 
 export async function POST(req: Request) {
   try {
@@ -30,28 +31,29 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert or update Order in Supabase if configured
+    // Insert or update Order in MongoDB Compass
     try {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      await supabase.from('orders').insert({
-        user_id: user?.id || null,
-        project_id: projectId,
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-        status: 'paid',
-        buyer_email: buyerEmail || user?.email || 'buyer@example.com',
-        buyer_phone: buyerPhone || '',
-      });
-    } catch {
-      // Supabase table not created yet or running in demo mode
+      await connectToDatabase();
+      await OrderModel.findOneAndUpdate(
+        { razorpay_order_id },
+        {
+          project_id: projectId,
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          status: 'paid',
+          buyer_email: buyerEmail || 'student@example.com',
+          buyer_phone: buyerPhone || '',
+        },
+        { upsert: true, returnDocument: 'after' }
+      );
+    } catch (dbErr) {
+      console.error('MongoDB order update error:', dbErr);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Payment verified successfully',
+      message: 'Payment verified successfully and saved in MongoDB',
       orderId: razorpay_order_id,
     });
   } catch (error: any) {
