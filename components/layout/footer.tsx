@@ -51,19 +51,19 @@ export default function Footer() {
               <div className="h-9 w-9 rounded-xl bg-[#000000] p-1 flex items-center justify-center shrink-0 border border-[#D8CEBE]">
                 <Image
                   src="/images/logo.jpg"
-                  alt="fastrackprojects logo"
+                  alt="Capstonia logo"
                   width={28}
                   height={28}
                   className="object-contain rounded-lg"
                 />
               </div>
-              <span className="text-lg font-extrabold text-[#000000]">fastrackprojects</span>
+              <span className="text-lg font-extrabold text-[#000000]">Capstonia</span>
             </div>
             <p className="text-xs text-[#000000]/90 leading-relaxed max-w-sm font-medium">
               India&apos;s premier engineering project store for B.Tech, B.E., and Diploma students. Complete tested deliverables with source code, IEEE reports, PPTs, and setup guides.
             </p>
             <div className="text-xs text-[#000000]/60 font-medium">
-              © 2026 fastrackprojects. All rights reserved.
+              © 2026 Capstonia. All rights reserved.
             </div>
           </div>
 

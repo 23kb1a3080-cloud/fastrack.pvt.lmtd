@@ -1,4 +1,4 @@
--- FastTrack Projects - Supabase Database Schema
+-- Capstonia - Supabase Database Schema
 
 -- 1. Create Projects Table
 CREATE TABLE IF NOT EXISTS public.projects (

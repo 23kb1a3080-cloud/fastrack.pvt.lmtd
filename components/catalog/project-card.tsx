@@ -25,8 +25,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <div className="relative h-52 w-full bg-[#ECE4DA] overflow-hidden">
         <Image
           src={project.thumbnail_url}
-          alt={project.title}
+          alt={`Preview deliverable package for ${project.title}`}
           fill
+          loading="lazy"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />

@@ -9,6 +9,8 @@ interface RazorpayButtonProps {
   projectId: string;
   projectTitle: string;
   priceInr: number;
+  packageTier?: string;
+  buttonText?: string;
   className?: string;
 }
 
@@ -16,12 +18,29 @@ export default function RazorpayButton({
   projectId,
   projectTitle,
   priceInr,
+  packageTier = 'Standard',
+  buttonText,
   className = '',
 }: RazorpayButtonProps) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [showModal, setShowModal] = useState(false);
+
+  // Prepopulate if student is logged in
+  const openModal = () => {
+    try {
+      const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.email && !email) setEmail(u.email);
+        if (u.phone && !phone) setPhone(u.phone);
+      }
+    } catch {
+      // ignore
+    }
+    setShowModal(true);
+  };
 
   const initiatePayment = async () => {
     if (!email || !phone) {
@@ -39,6 +58,8 @@ export default function RazorpayButton({
           projectId,
           buyerEmail: email,
           buyerPhone: phone,
+          packageTier,
+          amountInr: priceInr,
         }),
       });
 
@@ -52,8 +73,8 @@ export default function RazorpayButton({
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: 'fastrackprojects',
-        description: `Purchase: ${projectTitle.slice(0, 30)}...`,
+        name: 'Capstonia',
+        description: `${projectTitle.slice(0, 24)} [${packageTier}]`,
         order_id: data.orderId,
         prefill: {
           email: email,
@@ -101,11 +122,11 @@ export default function RazorpayButton({
 
       {/* Black Button (#000000) with Off-White/White Text (#FFFFFF) */}
       <button
-        onClick={() => setShowModal(true)}
+        onClick={openModal}
         className={`w-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] font-extrabold py-4 px-6 rounded-full shadow-xs transition-all flex items-center justify-center gap-2 text-sm ${className}`}
       >
         <Lock className="h-4 w-4" />
-        Buy Project Package — {formatINR(priceInr)}
+        {buttonText || `Buy Project Package — ${formatINR(priceInr)}`}
       </button>
 
       {/* Contact Info Modal */}
@@ -114,8 +135,15 @@ export default function RazorpayButton({
           <div className="bg-[#FAF6F0] border border-[#D8CEBE] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-[#D8CEBE] pb-4">
               <div>
-                <h3 className="text-lg font-black text-[#000000]">Student Contact Details</h3>
-                <p className="text-xs text-[#000000]/80 font-medium">Where should we send your receipt & instant download link?</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-black text-[#000000]">Order Checkout</h3>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#000000] text-[#FFFFFF]">
+                    {packageTier}
+                  </span>
+                </div>
+                <p className="text-xs text-[#000000]/80 font-medium mt-0.5">
+                  Instant ZIP download + IEEE report & PPT delivered to your email.
+                </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}

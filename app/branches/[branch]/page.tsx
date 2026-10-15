@@ -5,6 +5,9 @@ import ProjectCard from '@/components/catalog/project-card';
 import BranchCard from '@/components/catalog/branch-card';
 import Link from 'next/link';
 
+// Next.js 16 PPR/Instant Navigation configuration
+export const instant = false;
+
 export async function generateStaticParams() {
   return BRANCHES.map((branch) => ({
     branch: branch.id,

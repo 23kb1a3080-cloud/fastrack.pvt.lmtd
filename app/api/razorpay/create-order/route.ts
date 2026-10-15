@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
-    const { projectId, buyerEmail, buyerPhone } = await req.json();
+    const { projectId, buyerEmail, buyerPhone, packageTier, amountInr } = await req.json();
 
     if (!projectId) {
       return NextResponse.json({ error: 'Missing projectId' }, { status: 400 });
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    const priceInr = project.discounted_price_inr || project.price_inr;
+    const priceInr = amountInr ? Number(amountInr) : (project.discounted_price_inr || project.price_inr);
     const priceInPaisa = Math.round(priceInr * 100);
 
     const razorpay = getRazorpayClient();
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
       notes: {
         projectId: project.id,
         projectTitle: project.title,
+        packageTier: packageTier || 'Standard',
         buyerEmail: buyerEmail || '',
         buyerPhone: buyerPhone || '',
       },

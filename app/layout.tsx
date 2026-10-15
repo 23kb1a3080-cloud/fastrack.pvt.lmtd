@@ -11,7 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'FastTrack Projects — Verified Engineering Projects Store',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: 'Capstonia — Verified Engineering Projects Store',
   description: 'Buy complete B.Tech, B.E., and Diploma engineering projects for CSE, IT, AI&DS, AIML, & CSE (Data Science). Includes tested source code, IEEE reports, PPTs, & step-by-step setup guides.',
 };
 

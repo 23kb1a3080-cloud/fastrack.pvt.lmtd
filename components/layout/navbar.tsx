@@ -13,7 +13,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const checkUser = () => {
-      const stored = localStorage.getItem('fastrack_user');
+      const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
       if (stored) {
         try {
           setUser(JSON.parse(stored));
@@ -36,6 +36,7 @@ export default function Navbar() {
   }, []);
 
   const handleSignOut = () => {
+    localStorage.removeItem('capstonia_user');
     localStorage.removeItem('fastrack_user');
     setUser(null);
     setUserDropdownOpen(false);
@@ -51,7 +52,7 @@ export default function Navbar() {
             <div className="h-11 w-11 rounded-2xl bg-[#000000] p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs overflow-hidden border border-[#D8CEBE]">
               <Image
                 src="/images/logo.jpg"
-                alt="fastrackprojects logo"
+                alt="Capstonia logo"
                 width={36}
                 height={36}
                 className="object-contain rounded-xl"
@@ -61,7 +62,7 @@ export default function Navbar() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-extrabold tracking-tight text-[#000000]">
-                  fastrack<span className="opacity-75">projects</span>
+                  Capston<span className="opacity-75">ia</span>
                 </span>
                 <span className="hidden sm:inline-flex text-[10px] font-bold text-[#000000] bg-[#E5DCCF] px-2 py-0.5 rounded-full border border-[#D8CEBE]">
                   STORE
