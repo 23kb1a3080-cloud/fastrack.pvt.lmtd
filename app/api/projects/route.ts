@@ -3,6 +3,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ProjectModel } from '@/lib/models/Project';
 import { DEMO_PROJECTS } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
