@@ -19,7 +19,7 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">2. Product Usage & License</h2>
           <p className="text-[#000000]/80">
-            All project deliverables provided on Capstonia—including source code, IEEE reports (.docx/PDF), viva presentation slides (.pptx), and execution video demos—are licensed strictly for personal educational and academic reference purposes.
+            All project deliverables provided on Capstonia—including source code, IEEE reports (.docx/PDF), viva presentation slides (.pptx), and comprehensive execution manuals—are licensed strictly for personal educational and academic reference purposes.
           </p>
         </section>
 

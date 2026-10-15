@@ -14,8 +14,7 @@ import {
   CheckCircle2,
   XCircle,
   Zap,
-  Play,
-  Video,
+  BookOpen,
   Layers,
   Sparkles,
   ShieldCheck,
@@ -63,27 +62,7 @@ export default function ProjectDetailView({
   const premiumOriginalPrice = Math.round(premiumPrice * 1.5 / 50) * 50;
 
   const [selectedTier, setSelectedTier] = useState<PackageTierKey>('STANDARD');
-  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'screenshot'>('video');
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-
-  // Helper to extract YouTube embed URL
-  const getEmbedUrl = (url?: string) => {
-    if (!url) return 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1';
-    try {
-      if (url.includes('youtube.com/watch')) {
-        const videoId = new URL(url).searchParams.get('v');
-        return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-      }
-      if (url.includes('youtu.be/')) {
-        const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-        return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-      }
-      return url;
-    } catch {
-      return 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1';
-    }
-  };
 
   const TIERS: Record<PackageTierKey, TierConfig> = {
     BASIC: {
@@ -116,7 +95,7 @@ export default function ProjectDetailView({
         { title: 'Full IEEE Format Project Report (.docx & PDF)', included: true, note: '45-70 pages, editable Word' },
         { title: 'University Seminar & Viva Deck (.pptx)', included: true, note: '15-25 slides with speaker notes' },
         { title: 'Architecture, DFD Level 0/1/2 & UML Diagrams', included: true, note: 'High-res vector/PNG' },
-        { title: 'Step-by-Step Execution Video Demo', included: true, note: 'Full recorded walkthrough' },
+        { title: 'Step-by-Step Execution Guide & Setup Manual', included: true, note: 'Complete terminal commands & instructions' },
         { title: 'Viva Questions & Answers Reference Guide', included: true, note: '50+ examiner questions' },
         { title: 'Instant Re-download Access on Dashboard', included: true, note: 'Lifetime access' },
         { title: '1-on-1 Remote Installation Support', included: false },
@@ -175,11 +154,11 @@ export default function ProjectDetailView({
       highlight: 'Supplied in high-res PNG & editable formats',
     },
     {
-      icon: Video,
-      title: 'Execution & Setup Video Walkthrough',
-      badge: '1080P MP4',
-      description: 'Recorded step-by-step video guide demonstrating local setup, prerequisite installations, terminal run commands, and live feature demonstration.',
-      highlight: 'Guaranteed execution proof for reviewers',
+      icon: BookOpen,
+      title: 'Execution & Setup Documentation Guide',
+      badge: 'COMPLETE MANUAL',
+      description: 'Comprehensive step-by-step setup manual detailing local setup, prerequisite installations, terminal run commands, and live feature walkthrough.',
+      highlight: 'Guaranteed execution guide for smooth setup',
     },
     {
       icon: HelpCircle,
@@ -201,7 +180,7 @@ export default function ProjectDetailView({
     },
     {
       q: 'Will the project run on my laptop/computer?',
-      a: 'Yes! Every project package is pre-tested on clean Windows, Mac, and Linux environments. Each package includes an explicit step-by-step README and video guide with exact terminal commands. If you select the Premium VIP tier, our technical lead can connect via AnyDesk/TeamViewer to configure and run it for you.',
+      a: 'Yes! Every project package is pre-tested on clean Windows, Mac, and Linux environments. Each package includes an explicit step-by-step README and setup guide with exact terminal commands. If you select the Premium VIP tier, our technical lead can connect via AnyDesk/TeamViewer to configure and run it for you.',
     },
     {
       q: 'What is the difference between Basic, Standard, and Premium tiers?',
@@ -260,10 +239,10 @@ export default function ProjectDetailView({
         {/* Left Column (2 Cols) */}
         <div className="lg:col-span-2 space-y-12">
           {/* ========================================================= */}
-          {/* 1. DEMO VIDEO ON TOP (Centerpiece)                        */}
+          {/* 1. PROJECT VISUAL PREVIEW & ARCHITECTURE SHOWCASE        */}
           {/* ========================================================= */}
           <div className="rounded-3xl bg-[#FAF6F0] border border-[#D8CEBE] overflow-hidden shadow-sm space-y-0">
-            {/* Media Header & Tab Switcher */}
+            {/* Media Header */}
             <div className="p-4 sm:p-5 border-b border-[#D8CEBE] flex flex-wrap items-center justify-between gap-3 bg-[#F5EFE6]">
               <div className="flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 relative">
@@ -271,124 +250,56 @@ export default function ProjectDetailView({
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
                 <span className="text-xs font-black text-[#000000] tracking-wide uppercase">
-                  Live Project Output Verification
+                  Verified Project Output & Architecture
                 </span>
               </div>
 
-              {/* Tab Selector */}
-              <div className="flex items-center bg-[#ECE4DA] p-1 rounded-2xl border border-[#D8CEBE]">
-                <button
-                  onClick={() => {
-                    setActiveMediaTab('video');
-                  }}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
-                    activeMediaTab === 'video'
-                      ? 'bg-[#000000] text-[#FFFFFF] shadow-xs'
-                      : 'text-[#000000]/80 hover:text-[#000000]'
-                  }`}
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>Demo Video (1080p)</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveMediaTab('screenshot');
-                    setIsPlayingVideo(false);
-                  }}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
-                    activeMediaTab === 'screenshot'
-                      ? 'bg-[#000000] text-[#FFFFFF] shadow-xs'
-                      : 'text-[#000000]/80 hover:text-[#000000]'
-                  }`}
-                >
-                  <Layers className="h-3.5 w-3.5" />
-                  <span>Architecture & UI</span>
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-[#000000] text-[#FFFFFF] shadow-xs">
+                  Full Code + Docs Included
+                </span>
               </div>
             </div>
 
-            {/* Video / Screenshot Viewer Canvas */}
-            <div className="relative aspect-video w-full bg-[#000000] overflow-hidden">
-              {activeMediaTab === 'video' ? (
-                isPlayingVideo ? (
-                  <iframe
-                    src={getEmbedUrl(project.demo_video_url)}
-                    title={`${project.title} Demo Video`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full border-0"
-                  />
-                ) : (
-                  <div className="relative w-full h-full group">
-                    <Image
-                      src={project.thumbnail_url}
-                      alt={`${project.title} Preview Poster`}
-                      fill
-                      priority
-                      sizes="(max-width: 1200px) 100vw, 66vw"
-                      className="object-cover opacity-85 group-hover:opacity-95 transition-opacity"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-[#000000]/30 to-[#000000]/40 flex flex-col justify-between p-6">
-                      <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full text-[11px] font-black bg-[#000000]/80 text-[#FFFFFF] backdrop-blur-sm border border-white/20">
-                          Execution Video Walkthrough
-                        </span>
-                        <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-[#FFFFFF]/90 text-[#000000] shadow-sm">
-                          HD 1080p Recorded
-                        </span>
-                      </div>
-
-                      {/* Big Play Button in center */}
-                      <div className="self-center flex flex-col items-center gap-3">
-                        <button
-                          onClick={() => setIsPlayingVideo(true)}
-                          className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-[#FFFFFF] hover:bg-[#FAF6F0] text-[#000000] flex items-center justify-center shadow-2xl transition-all group-hover:scale-110 active:scale-95"
-                          aria-label="Play Demo Video"
-                        >
-                          <Play className="h-8 w-8 text-[#000000] fill-[#000000] ml-1" />
-                        </button>
-                        <span className="text-xs font-extrabold text-[#FFFFFF] drop-shadow-md bg-[#000000]/60 px-3 py-1 rounded-full backdrop-blur-xs">
-                          Click to Play Verified Execution Demo
-                        </span>
-                      </div>
-
-                      {/* Video Tags */}
-                      <div className="flex items-center justify-between text-xs text-white/90 font-medium">
-                        <span>Includes Code Walkthrough & Live Output</span>
-                        <span>Full Run Guarantee</span>
-                      </div>
-                    </div>
+            {/* Architecture & UI Blueprint Preview Canvas */}
+            <div className="relative aspect-video w-full bg-[#000000] overflow-hidden group">
+              <Image
+                src={project.thumbnail_url}
+                alt={project.title}
+                fill
+                priority
+                sizes="(max-width: 1200px) 100vw, 66vw"
+                className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-transparent to-[#000000]/30 pointer-events-none" />
+              <div className="absolute bottom-4 left-4 right-4 p-4 bg-[#000000]/85 backdrop-blur-md rounded-2xl border border-white/20 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-lg">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-extrabold text-white flex items-center gap-2">
+                    <Layers className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Production Architecture & System Blueprint</span>
                   </div>
-                )
-              ) : (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={project.thumbnail_url}
-                    alt={project.title}
-                    fill
-                    sizes="(max-width: 1200px) 100vw, 66vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute bottom-4 left-4 right-4 p-3 bg-[#000000]/80 backdrop-blur-md rounded-2xl border border-white/20 text-white text-xs font-bold flex items-center justify-between">
-                    <span>High-Resolution System Blueprint & Architecture</span>
-                    <span className="text-[10px] text-white/70">Included in package</span>
-                  </div>
+                  <p className="text-[11px] text-white/70">
+                    Pre-tested in local runtime environments. Ready for evaluator viva.
+                  </p>
                 </div>
-              )}
+                <span className="self-start sm:self-center px-2.5 py-1 rounded-full text-[10px] font-black bg-white/20 text-white border border-white/30 whitespace-nowrap">
+                  100% Run Guarantee
+                </span>
+              </div>
             </div>
 
-            {/* Video Footer Breakdown Banner */}
+            {/* Footer Verification Breakdown Banner */}
             <div className="p-4 sm:p-5 bg-[#FAF6F0] flex flex-wrap items-center justify-between gap-4 text-xs font-bold text-[#000000]/80">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
-                <span>Recorded directly from a working local environment</span>
+                <span>Verified directly from a tested local environment</span>
               </div>
               <div className="flex items-center gap-4 text-[11px] font-extrabold text-[#000000]">
-                <span>⏱️ Runtime: ~6 Mins</span>
+                <span>📦 Clean Source Code</span>
                 <span>•</span>
-                <span>🔊 Step-by-Step Audio Guidance</span>
+                <span>📄 Word & PDF Reports</span>
                 <span>•</span>
-                <span>💻 Terminal Commands Shown</span>
+                <span>💻 Terminal Run Commands</span>
               </div>
             </div>
           </div>

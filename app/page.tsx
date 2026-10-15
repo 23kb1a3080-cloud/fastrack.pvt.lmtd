@@ -9,7 +9,7 @@ import {
   Download,
   Star,
   Award,
-  Video,
+  BookOpen,
   FileText,
   Sparkles,
   Zap,
@@ -47,7 +47,7 @@ export default function HomePage() {
 
             {/* Subtitle */}
             <p className="text-sm sm:text-base text-[#000000]/85 max-w-2xl mx-auto leading-relaxed font-medium">
-              Complete tested packages for <strong className="text-[#000000]">CSE, IT, AI&DS, AIML, & CSE (Data Science)</strong>. Includes verified source code ZIP, IEEE formatted report (Word & PDF), viva PPT presentation deck, & step-by-step setup video guide.
+              Complete tested packages for <strong className="text-[#000000]">CSE, IT, AI&DS, AIML, & CSE (Data Science)</strong>. Includes verified source code ZIP, IEEE formatted report (Word & PDF), viva PPT presentation deck, & step-by-step setup documentation guide.
             </p>
 
             {/* Two CTA Buttons */}
@@ -86,7 +86,7 @@ export default function HomePage() {
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
-                <Video className="h-3.5 w-3.5 text-[#000000]" /> Video Walkthrough Guide
+                <BookOpen className="h-3.5 w-3.5 text-[#000000]" /> Setup Documentation Guide
               </span>
             </div>
           </div>
@@ -263,11 +263,11 @@ export default function HomePage() {
 
               <div className="p-5 rounded-2xl bg-[#ECE4DA] border border-[#D8CEBE] flex items-start gap-4">
                 <div className="h-10 w-10 rounded-xl bg-[#000000] flex items-center justify-center text-[#FFFFFF] shrink-0">
-                  <Video className="h-5 w-5" />
+                  <BookOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#000000] text-base">Execution Video & Setup Guide</h4>
-                  <p className="text-xs text-[#000000]/80 mt-1 font-medium">Step-by-step video walkthrough + environment setup guide for all projects.</p>
+                  <h4 className="font-extrabold text-[#000000] text-base">Setup Manual & Run Instructions</h4>
+                  <p className="text-xs text-[#000000]/80 mt-1 font-medium">Comprehensive setup manual + terminal run commands for local execution.</p>
                 </div>
               </div>
             </div>

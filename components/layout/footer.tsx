@@ -29,7 +29,7 @@ export default function Footer() {
             <ShieldCheck className="h-7 w-7 text-[#000000] shrink-0" />
             <div>
               <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">100% Tested & Verified</h4>
-              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">Guaranteed execution video demo</p>
+              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">Guaranteed working execution manual</p>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ export default function Footer() {
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> IEEE Word (.docx)</li>
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Report PDF</li>
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Viva PPT (.pptx)</li>
-              <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Video Demo</li>
+              <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Setup & Run Guide</li>
             </ul>
           </div>
 

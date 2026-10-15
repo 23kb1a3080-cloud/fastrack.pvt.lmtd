@@ -262,7 +262,7 @@ export default function CustomRequestPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
-                  <span><strong>Video Installation Guide:</strong> Step-by-step setup video for local execution.</span>
+                  <span><strong>Installation & Run Manual:</strong> Step-by-step setup documentation for local execution.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />

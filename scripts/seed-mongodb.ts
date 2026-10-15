@@ -13,7 +13,8 @@ async function seed() {
   console.log('Connected successfully to MongoDB fastrack_db!');
 
   // 1. Seed Projects
-  console.log('Seeding catalog projects into MongoDB...');
+  console.log('Cleaning up demo_video_url and seeding catalog projects into MongoDB...');
+  await ProjectModel.updateMany({}, { $unset: { demo_video_url: 1 } });
   let projectCount = 0;
   for (const p of DEMO_PROJECTS) {
     await ProjectModel.findOneAndUpdate(
@@ -29,7 +30,6 @@ async function seed() {
         price_inr: p.price_inr,
         discounted_price_inr: p.discounted_price_inr,
         thumbnail_url: p.thumbnail_url,
-        demo_video_url: p.demo_video_url,
         file_path: p.file_path,
         is_published: p.is_published,
         is_featured: p.is_featured,
