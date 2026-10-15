@@ -183,7 +183,7 @@ function AuthContent() {
       <div className="text-center space-y-3 mb-8">
         <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-[#000000] p-1.5 shadow-md border border-[#D8CEBE]">
           <Image
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Capstonia logo"
             width={48}
             height={48}

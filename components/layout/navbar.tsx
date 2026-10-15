@@ -51,10 +51,10 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="h-11 w-11 rounded-2xl bg-[#000000] p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs overflow-hidden border border-[#D8CEBE]">
               <Image
-                src="/images/logo.jpg"
+                src="/images/logo.png"
                 alt="Capstonia logo"
-                width={36}
-                height={36}
+                width={38}
+                height={38}
                 className="object-contain rounded-xl"
               />
             </div>

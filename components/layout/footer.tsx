@@ -35,7 +35,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#ECE4DA] border border-[#D8CEBE]">
             <div className="h-7 w-7 relative shrink-0">
-              <Image src="/images/logo.jpg" alt="Logo" fill className="object-contain rounded-lg" />
+              <Image src="/images/logo.png" alt="Logo" fill className="object-contain rounded-lg" />
             </div>
             <div>
               <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">Razorpay Secure UPI</h4>
@@ -50,7 +50,7 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <div className="h-9 w-9 rounded-xl bg-[#000000] p-1 flex items-center justify-center shrink-0 border border-[#D8CEBE]">
                 <Image
-                  src="/images/logo.jpg"
+                  src="/images/logo.png"
                   alt="Capstonia logo"
                   width={28}
                   height={28}
