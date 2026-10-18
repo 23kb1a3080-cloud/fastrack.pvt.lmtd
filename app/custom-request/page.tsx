@@ -228,7 +228,7 @@ export default function CustomRequestPage() {
                   type="text"
                   value={formData.budget}
                   onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                  placeholder="e.g. ₹1,500 - ₹3,000"
+                  placeholder="e.g. ₹3,500 - ₹5,000"
                   className="w-full px-3.5 py-2.5 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs font-bold text-[#000000] focus:outline-none focus:border-[#000000]"
                 />
               </div>

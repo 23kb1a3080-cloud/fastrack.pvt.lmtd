@@ -1,16 +1,51 @@
 import mongoose from 'mongoose';
+import dns from 'node:dns';
+import fs from 'node:fs';
+import path from 'node:path';
 import { DEMO_PROJECTS } from '../lib/constants';
 import { ProjectModel } from '../lib/models/Project';
 import { UserModel } from '../lib/models/User';
 import { OrderModel } from '../lib/models/Order';
 import { CustomRequestModel } from '../lib/models/CustomRequest';
 
+// Set DNS servers for Windows SRV queries
+if (typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (_) {}
+}
+
+// Load .env.local or .env if process.env.MONGODB_URI is not set
+function loadEnv() {
+  const envFiles = ['.env.local', '.env'];
+  for (const file of envFiles) {
+    const fullPath = path.resolve(process.cwd(), file);
+    if (fs.existsSync(fullPath)) {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          const eqIdx = trimmed.indexOf('=');
+          if (eqIdx !== -1) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            const val = trimmed.slice(eqIdx + 1).trim();
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+loadEnv();
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fastrack_db';
 
 async function seed() {
-  console.log(`Connecting to MongoDB Compass at: ${MONGODB_URI} ...`);
+  console.log(`Connecting to MongoDB at: ${MONGODB_URI.replace(/:([^:@]+)@/, ':****@')} ...`);
   await mongoose.connect(MONGODB_URI);
-  console.log('Connected successfully to MongoDB fastrack_db!');
+  console.log('Connected successfully to MongoDB!');
 
   // 1. Seed Projects
   console.log('Cleaning up demo_video_url and seeding catalog projects into MongoDB...');

@@ -34,7 +34,7 @@ interface ProjectDetailViewProps {
   branchInfo?: BranchInfo;
 }
 
-export type PackageTierKey = 'BASIC' | 'STANDARD' | 'PREMIUM';
+export type PackageTierKey = 'STANDARD' | 'PREMIER';
 
 interface TierConfig {
   key: PackageTierKey;
@@ -52,36 +52,18 @@ export default function ProjectDetailView({
   branchInfo,
 }: ProjectDetailViewProps) {
   // Compute Tier Prices dynamically
+  // Standard tier starts from 3500 to 5000 based on project catalog pricing
   const standardPrice = project.discounted_price_inr || project.price_inr;
-  const standardOriginalPrice = Math.max(project.price_inr, Math.round(standardPrice * 1.5 / 50) * 50);
+  const standardOriginalPrice = Math.max(project.price_inr, Math.round(standardPrice * 1.45 / 50) * 50);
 
-  const basicPrice = Math.max(499, Math.round((standardPrice * 0.62) / 50) * 50);
-  const basicOriginalPrice = Math.round(basicPrice * 1.6 / 50) * 50;
-
-  const premiumPrice = Math.round((standardPrice * 1.55) / 50) * 50;
-  const premiumOriginalPrice = Math.round(premiumPrice * 1.5 / 50) * 50;
+  // Premier tier starts from 7000 upto 10000 (scaled from standardPrice 3500 - 5000)
+  const premierPrice = Math.min(10000, Math.max(7000, Math.round((standardPrice * 2) / 50) * 50));
+  const premierOriginalPrice = Math.round(premierPrice * 1.45 / 50) * 50;
 
   const [selectedTier, setSelectedTier] = useState<PackageTierKey>('STANDARD');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const TIERS: Record<PackageTierKey, TierConfig> = {
-    BASIC: {
-      key: 'BASIC',
-      name: 'Basic Package',
-      tagline: 'Source Code Only — for students who prepare their own report',
-      price: basicPrice,
-      originalPrice: basicOriginalPrice,
-      features: [
-        { title: 'Complete Runnable Source Code ZIP', included: true, note: 'Frontend, backend, models & database' },
-        { title: 'Local Setup & Execution Guide (README)', included: true, note: 'Step-by-step CLI commands' },
-        { title: 'Environment Config & Requirements.txt', included: true, note: 'Exact library versions' },
-        { title: 'Instant ZIP Download Link', included: true, note: 'Delivered immediately' },
-        { title: 'IEEE Formatted Project Report (.docx & PDF)', included: false },
-        { title: 'University Viva Presentation (.pptx)', included: false },
-        { title: 'System Architecture Diagrams (DFD & UML)', included: false },
-        { title: '1-on-1 Remote Installation Support', included: false },
-      ],
-    },
     STANDARD: {
       key: 'STANDARD',
       name: 'Standard Package',
@@ -101,13 +83,13 @@ export default function ProjectDetailView({
         { title: '1-on-1 Remote Installation Support', included: false },
       ],
     },
-    PREMIUM: {
-      key: 'PREMIUM',
-      name: 'Premium VIP Package',
+    PREMIER: {
+      key: 'PREMIER',
+      name: 'Premier Package',
       badge: 'VIP MENTORSHIP • 100% PASS',
       tagline: 'Everything in Standard + 1-on-1 Live Installation & Defense Prep',
-      price: premiumPrice,
-      originalPrice: premiumOriginalPrice,
+      price: premierPrice,
+      originalPrice: premierOriginalPrice,
       features: [
         { title: 'Everything in Standard Package', included: true, note: 'Source code, IEEE report, PPT, diagrams' },
         { title: '1-on-1 Remote Setup Support via AnyDesk', included: true, note: 'Live setup by senior engineer' },
@@ -180,11 +162,11 @@ export default function ProjectDetailView({
     },
     {
       q: 'Will the project run on my laptop/computer?',
-      a: 'Yes! Every project package is pre-tested on clean Windows, Mac, and Linux environments. Each package includes an explicit step-by-step README and setup guide with exact terminal commands. If you select the Premium VIP tier, our technical lead can connect via AnyDesk/TeamViewer to configure and run it for you.',
+      a: 'Yes! Every project package is pre-tested on clean Windows, Mac, and Linux environments. Each package includes an explicit step-by-step README and setup guide with exact terminal commands. If you select the Premier tier, our technical lead can connect via AnyDesk/TeamViewer to configure and run it for you.',
     },
     {
-      q: 'What is the difference between Basic, Standard, and Premium tiers?',
-      a: 'The Basic package includes just the verified source code and setup instructions. The Standard package is our most popular all-in-one deliverable with source code + IEEE report + PPT slides + architecture diagrams. The Premium package includes everything plus 1-on-1 remote installation support via AnyDesk and 100+ viva defense prep materials.',
+      q: 'What is the difference between Standard and Premier tiers?',
+      a: 'The Standard package is our most popular all-in-one deliverable with source code + full IEEE format report (.docx & PDF) + PPT slides + architecture diagrams. The Premier package includes everything in Standard plus 1-on-1 remote installation support via AnyDesk and 100+ viva defense prep materials.',
     },
     {
       q: 'Is payment secure?',
@@ -359,7 +341,7 @@ export default function ProjectDetailView({
           </div>
 
           {/* ========================================================= */}
-          {/* 3. PACKAGE TIERS (Basic, Standard, Premium)               */}
+          {/* 3. PACKAGE TIERS (Standard, Premier)                      */}
           {/* ========================================================= */}
           <div className="space-y-6">
             <div className="text-center sm:text-left space-y-1">
@@ -375,7 +357,7 @@ export default function ProjectDetailView({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(Object.keys(TIERS) as PackageTierKey[]).map((tierKey) => {
                 const tier = TIERS[tierKey];
                 const isSelected = selectedTier === tierKey;

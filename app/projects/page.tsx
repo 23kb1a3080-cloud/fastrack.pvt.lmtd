@@ -48,9 +48,9 @@ function CatalogContent() {
 
       const price = project.discounted_price_inr || project.price_inr;
       let matchesPrice = true;
-      if (priceRange === 'UNDER_1000') matchesPrice = price < 1000;
-      if (priceRange === '1000_2000') matchesPrice = price >= 1000 && price <= 2000;
-      if (priceRange === 'ABOVE_2000') matchesPrice = price > 2000;
+      if (priceRange === 'UNDER_4000') matchesPrice = price < 4000;
+      if (priceRange === '4000_4500') matchesPrice = price >= 4000 && price <= 4500;
+      if (priceRange === 'ABOVE_4500') matchesPrice = price > 4500;
 
       return matchesSearch && matchesBranch && matchesCategory && matchesPrice;
     }).sort((a, b) => {
@@ -207,31 +207,31 @@ function CatalogContent() {
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === 'UNDER_1000'}
-                  onChange={() => setPriceRange('UNDER_1000')}
+                  checked={priceRange === 'UNDER_4000'}
+                  onChange={() => setPriceRange('UNDER_4000')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>Under ₹1,000</span>
+                <span>Under ₹4,000</span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === '1000_2000'}
-                  onChange={() => setPriceRange('1000_2000')}
+                  checked={priceRange === '4000_4500'}
+                  onChange={() => setPriceRange('4000_4500')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>₹1,000 - ₹2,000</span>
+                <span>₹4,000 - ₹4,500</span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === 'ABOVE_2000'}
-                  onChange={() => setPriceRange('ABOVE_2000')}
+                  checked={priceRange === 'ABOVE_4500'}
+                  onChange={() => setPriceRange('ABOVE_4500')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>Above ₹2,000</span>
+                <span>Above ₹4,500</span>
               </label>
             </div>
           </div>

@@ -1,4 +1,12 @@
 import mongoose from 'mongoose';
+import dns from 'node:dns';
+
+// Ensure public DNS fallback on Node environments where local resolver fails SRV queries
+if (typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (_) {}
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fastrack_db';
 
