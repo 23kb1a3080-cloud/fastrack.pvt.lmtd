@@ -163,7 +163,7 @@ HOW TO RUN THE PROJECT:
 
 SUPPORT & GUIDANCE:
 -------------------
-WhatsApp Support: +91 9876543210
+WhatsApp Support: +91 7382324346
 Email: support@fastrackprojects.com
 Technical team available Mon-Sat 9AM-8PM IST.
 `;
