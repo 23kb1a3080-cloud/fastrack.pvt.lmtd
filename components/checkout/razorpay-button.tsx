@@ -91,11 +91,40 @@ export default function RazorpayButton({
               projectId,
               buyerEmail: email,
               buyerPhone: phone,
+              packageTier,
             }),
           });
 
           const verifyData = await verifyRes.json();
           if (verifyData.success) {
+            try {
+              const existingRaw = localStorage.getItem('fastrack_purchased_orders');
+              const existing = existingRaw ? JSON.parse(existingRaw) : [];
+              const newOrder = {
+                id: response.razorpay_order_id,
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                amountInr: priceInr,
+                packageTier: packageTier || 'Standard',
+                status: 'paid',
+                buyerEmail: email.toLowerCase().trim(),
+                createdAt: new Date().toISOString(),
+                project: {
+                  id: projectId,
+                  title: projectTitle,
+                  slug: projectId,
+                  branch: 'Engineering',
+                  category: 'MAJOR_FINAL_YEAR',
+                  short_description: 'Verified engineering project package with full source code, IEEE format report, and viva slides.',
+                },
+              };
+              // Add if not already present
+              if (!existing.some((o: any) => o.orderId === response.razorpay_order_id)) {
+                existing.unshift(newOrder);
+                localStorage.setItem('fastrack_purchased_orders', JSON.stringify(existing));
+              }
+            } catch (_) {}
+
             window.location.href = `/dashboard?payment=success&orderId=${response.razorpay_order_id}`;
           } else {
             alert('Payment verification failed. Please contact support.');

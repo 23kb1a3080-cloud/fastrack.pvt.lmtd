@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       projectId,
       buyerEmail,
       buyerPhone,
+      packageTier,
     } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     }
 
     // Insert or update Order in MongoDB Compass
+    const normalizedEmail = (buyerEmail || 'student@example.com').toLowerCase().trim();
     try {
       await connectToDatabase();
       await OrderModel.findOneAndUpdate(
@@ -42,8 +44,9 @@ export async function POST(req: Request) {
           razorpay_payment_id,
           razorpay_signature,
           status: 'paid',
-          buyer_email: buyerEmail || 'student@example.com',
+          buyer_email: normalizedEmail,
           buyer_phone: buyerPhone || '',
+          package_tier: packageTier || 'Standard',
         },
         { upsert: true, returnDocument: 'after' }
       );

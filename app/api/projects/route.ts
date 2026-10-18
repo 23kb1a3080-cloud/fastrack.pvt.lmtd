@@ -55,6 +55,9 @@ export async function GET(req: Request) {
       })),
     });
   } catch (error: any) {
+    if (error?.digest === 'NEXT_PRERENDER_INTERRUPTED') {
+      throw error;
+    }
     console.error('Projects API Error:', error);
     // Fallback to DEMO_PROJECTS if DB connection fails
     return NextResponse.json({

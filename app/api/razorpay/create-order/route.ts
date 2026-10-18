@@ -16,12 +16,11 @@ export async function POST(req: Request) {
     let project: any = null;
     try {
       await connectToDatabase();
-      project = await ProjectModel.findOne({
-        $or: [
-          { slug: projectId },
-          { _id: projectId.match(/^[0-9a-fA-F]{24}$/) ? projectId : null },
-        ],
-      }).lean();
+      const conditions: any[] = [{ slug: projectId }];
+      if (typeof projectId === 'string' && /^[0-9a-fA-F]{24}$/.test(projectId)) {
+        conditions.push({ _id: projectId });
+      }
+      project = await ProjectModel.findOne({ $or: conditions }).lean();
     } catch (e) {
       console.warn('MongoDB project lookup failed, falling back to DEMO_PROJECTS:', e);
     }
@@ -61,7 +60,7 @@ export async function POST(req: Request) {
         amount_inr: priceInr,
         razorpay_order_id: razorpayOrder.id,
         status: 'pending',
-        buyer_email: buyerEmail || 'student@example.com',
+        buyer_email: (buyerEmail || 'student@example.com').toLowerCase().trim(),
         buyer_phone: buyerPhone || '',
         package_tier: packageTier || 'Standard',
       });
