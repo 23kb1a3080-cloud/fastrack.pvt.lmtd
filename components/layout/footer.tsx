@@ -108,7 +108,7 @@ export default function Footer() {
               <li><Link href="/login" className="hover:opacity-70">Sign In / Register</Link></li>
               <li className="pt-1">
                 <a
-                  href="https://wa.me/917382324346?text=Hi%20Capstonia%20Projects%2C%20I%20have%20a%20query%20about%20an%20engineering%20project"
+                  href="https://wa.me/917382324346?text=Hi%20Capstonia%20Projects!%20I%20am%20interested%20in%20an%20engineering%20project%20package.%20Please%20share%20details%20and%20guidance."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-800 font-black hover:text-emerald-950 flex items-center gap-1"

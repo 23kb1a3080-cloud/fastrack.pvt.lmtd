@@ -17,7 +17,7 @@ export default function WhatsAppButton() {
     // Show notification bubble after 2.5 seconds to catch attention
     const timer = setTimeout(() => {
       try {
-        const dismissed = sessionStorage.getItem('fastrack_whatsapp_dismissed');
+        const dismissed = sessionStorage.getItem('capstonia_whatsapp_dismissed');
         if (!dismissed) {
           setShowNotification(true);
         }
@@ -34,7 +34,7 @@ export default function WhatsAppButton() {
     setShowNotification(false);
     setHasInteracted(true);
     try {
-      sessionStorage.setItem('fastrack_whatsapp_dismissed', 'true');
+      sessionStorage.setItem('capstonia_whatsapp_dismissed', 'true');
     } catch (_) {}
   };
 

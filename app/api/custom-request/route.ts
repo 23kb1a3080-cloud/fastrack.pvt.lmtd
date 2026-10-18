@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       requestId: created._id.toString(),
-      message: 'Custom request recorded in MongoDB fastrack_db!',
+      message: 'Custom request recorded successfully in database!',
     });
   } catch (error: any) {
     console.error('Custom Request API Error:', error);

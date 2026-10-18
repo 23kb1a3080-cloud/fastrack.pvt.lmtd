@@ -102,7 +102,7 @@ function BuyerDashboardContent() {
 
         // Merge with client-side verified orders cache for instant rendering
         try {
-          const localRaw = localStorage.getItem('fastrack_purchased_orders');
+          const localRaw = localStorage.getItem('capstonia_purchased_orders') || localStorage.getItem('fastrack_purchased_orders');
           if (localRaw) {
             const localList = JSON.parse(localRaw);
             const matchingLocal = localList.filter(

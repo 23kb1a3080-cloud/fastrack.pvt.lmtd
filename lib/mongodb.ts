@@ -58,7 +58,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       // 2. Connect to local MongoDB fallback
       try {
         const inst = await tryConnect(LOCAL_URI, 3000);
-        console.log('Connected to local MongoDB fastrack_db successfully!');
+        console.log('Connected to local MongoDB database successfully!');
         return inst;
       } catch (err: any) {
         console.warn(`Local MongoDB fallback failed (${err.message.slice(0, 50)}...).`);

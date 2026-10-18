@@ -98,7 +98,7 @@ export default function RazorpayButton({
           const verifyData = await verifyRes.json();
           if (verifyData.success) {
             try {
-              const existingRaw = localStorage.getItem('fastrack_purchased_orders');
+              const existingRaw = localStorage.getItem('capstonia_purchased_orders') || localStorage.getItem('fastrack_purchased_orders');
               const existing = existingRaw ? JSON.parse(existingRaw) : [];
               const newOrder = {
                 id: response.razorpay_order_id,
@@ -121,7 +121,7 @@ export default function RazorpayButton({
               // Add if not already present
               if (!existing.some((o: any) => o.orderId === response.razorpay_order_id)) {
                 existing.unshift(newOrder);
-                localStorage.setItem('fastrack_purchased_orders', JSON.stringify(existing));
+                localStorage.setItem('capstonia_purchased_orders', JSON.stringify(existing));
               }
             } catch (_) {}
 
