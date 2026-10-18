@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { UserModel } from '@/lib/models/User';
+import { findUserByEmail, registerNewUser } from '@/lib/auth-storage';
 
 export async function POST(req: Request) {
   try {
@@ -8,33 +7,31 @@ export async function POST(req: Request) {
 
     if (!email || !password || !full_name) {
       return NextResponse.json(
-        { error: 'Name, email, and password are required' },
+        { error: 'Full name, email address, and password are required.' },
         { status: 400 }
       );
     }
 
-    await connectToDatabase();
-
-    const existingUser = await UserModel.findOne({ email: email.toLowerCase().trim() });
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
-        { error: 'An account with this email already exists in MongoDB.' },
+        { error: 'An account with this email address already exists. Please sign in.' },
         { status: 409 }
       );
     }
 
-    const newUser = await UserModel.create({
-      full_name,
+    const newUser = await registerNewUser({
+      full_name: full_name.trim(),
       email: email.toLowerCase().trim(),
       password,
       phone: phone || '',
       branch: branch || 'CSE',
       college_name: college_name || '',
-      role: 'buyer',
+      role: email.toLowerCase().trim().includes('admin') ? 'admin' : 'buyer',
     });
 
     const userData = {
-      id: newUser._id.toString(),
+      id: newUser.id,
       email: newUser.email,
       full_name: newUser.full_name,
       role: newUser.role,
@@ -46,7 +43,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       success: true,
       user: userData,
-      message: 'Account created successfully in MongoDB fastrack_db!',
+      message: 'Account successfully registered and verified!',
     });
 
     // Store user session in cookie
@@ -59,7 +56,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    console.error('MongoDB Signup Error:', error);
+    console.error('Signup Error:', error);
     return NextResponse.json(
       { error: error?.message || 'Registration failed' },
       { status: 500 }

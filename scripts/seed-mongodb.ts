@@ -40,12 +40,12 @@ function loadEnv() {
 }
 loadEnv();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fastrack_db';
+import { connectToDatabase } from '../lib/mongodb';
 
 async function seed() {
-  console.log(`Connecting to MongoDB at: ${MONGODB_URI.replace(/:([^:@]+)@/, ':****@')} ...`);
-  await mongoose.connect(MONGODB_URI);
-  console.log('Connected successfully to MongoDB!');
+  console.log('Connecting to database...');
+  await connectToDatabase();
+  console.log('Connected successfully to database!');
 
   // 1. Seed Projects
   console.log('Cleaning up demo_video_url and seeding catalog projects into MongoDB...');

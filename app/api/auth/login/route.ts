@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { UserModel } from '@/lib/models/User';
+import { findUserByEmail } from '@/lib/auth-storage';
 
 export async function POST(req: Request) {
   try {
@@ -8,31 +7,29 @@ export async function POST(req: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email and password are required.' },
         { status: 400 }
       );
     }
 
-    await connectToDatabase();
-
-    const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+    const user = await findUserByEmail(email);
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid credentials. User not found in MongoDB.' },
+        { error: 'No account found with this email. Please check your spelling or register.' },
         { status: 401 }
       );
     }
 
-    // Check password (plain text or fallback)
+    // Check password
     if (user.password && user.password !== password) {
       return NextResponse.json(
-        { error: 'Invalid email or password.' },
+        { error: 'Incorrect password. Please try again.' },
         { status: 401 }
       );
     }
 
     const userData = {
-      id: user._id.toString(),
+      id: user.id,
       email: user.email,
       full_name: user.full_name,
       role: user.role,
@@ -44,7 +41,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       success: true,
       user: userData,
-      message: 'Successfully authenticated with MongoDB!',
+      message: 'Successfully authenticated!',
     });
 
     // Store user session in cookie
@@ -57,7 +54,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    console.error('MongoDB Login Error:', error);
+    console.error('Login Error:', error);
     return NextResponse.json(
       { error: error?.message || 'Authentication error' },
       { status: 500 }

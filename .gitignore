@@ -39,6 +39,9 @@ scratch/
 # vercel
 .vercel
 
+# local user store
+.system_user_store.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -12,17 +12,34 @@ export default function Navbar() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const checkUser = () => {
+    const checkUser = async () => {
       const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
       if (stored) {
         try {
           setUser(JSON.parse(stored));
+          return;
         } catch {
-          setUser(null);
+          // continue to API check
         }
-      } else {
-        setUser(null);
       }
+
+      // Fallback check session cookie via API
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          const u = {
+            name: data.user.full_name || data.user.name,
+            email: data.user.email,
+            role: data.user.role === 'admin' ? 'ADMIN' : 'STUDENT',
+          };
+          setUser(u);
+          localStorage.setItem('capstonia_user', JSON.stringify(u));
+          return;
+        }
+      } catch (_) {}
+
+      setUser(null);
     };
 
     checkUser();
@@ -35,9 +52,12 @@ export default function Navbar() {
     };
   }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     localStorage.removeItem('capstonia_user');
     localStorage.removeItem('fastrack_user');
+    try {
+      await fetch('/api/auth/me', { method: 'DELETE' });
+    } catch (_) {}
     setUser(null);
     setUserDropdownOpen(false);
     window.dispatchEvent(new Event('authChange'));
