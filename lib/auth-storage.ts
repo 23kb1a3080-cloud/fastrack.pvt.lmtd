@@ -19,10 +19,19 @@ const FALLBACK_FILE = path.resolve(process.cwd(), '.system_user_store.json');
 const DEFAULT_USERS: Array<AuthUserData & { password?: string }> = [
   {
     id: 'user_admin_001',
-    email: 'admin@fastrack.com',
-    full_name: 'Fastrack Admin',
+    email: 'admin@capstonia.com',
+    full_name: 'Capstonia Admin',
     role: 'admin',
-    phone: '+91 9876543210',
+    phone: '+91 7382324346',
+    branch: 'CSE',
+    password: 'adminpassword123',
+  },
+  {
+    id: 'user_admin_002',
+    email: 'admin@fastrack.com',
+    full_name: 'Capstonia Admin',
+    role: 'admin',
+    phone: '+91 7382324346',
     branch: 'CSE',
     password: 'adminpassword123',
   },

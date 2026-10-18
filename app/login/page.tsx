@@ -197,7 +197,7 @@ export function AuthContent({ defaultMode }: { defaultMode?: 'login' | 'signup' 
       setLoading(false);
       const user =
         role === 'ADMIN'
-          ? { name: 'Admin Lead', email: 'admin@fastrack.com', role: 'ADMIN', branch: 'CSE' }
+          ? { name: 'Capstonia Admin Lead', email: 'admin@capstonia.com', role: 'ADMIN', branch: 'CSE' }
           : { name: 'Rahul Sharma', email: 'student@example.com', role: 'STUDENT', branch: 'CSE' };
 
       localStorage.setItem('capstonia_user', JSON.stringify(user));

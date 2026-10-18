@@ -6,7 +6,7 @@ import { X, MessageCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 const WHATSAPP_PHONE = '917382324346';
 const DISPLAY_PHONE = '+91 73823 24346';
 const DEFAULT_MESSAGE = encodeURIComponent(
-  'Hi Fastrack Projects! I am interested in an engineering project package. Please share details and guidance.'
+  'Hi Capstonia Projects! I am interested in an engineering project package. Please share details and guidance.'
 );
 
 export default function WhatsAppButton() {
@@ -52,7 +52,7 @@ export default function WhatsAppButton() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
               <span className="text-[11px] font-black uppercase tracking-wider text-[#000000]">
-                Engineering Support
+                Capstonia Projects Support
               </span>
             </div>
             <button
@@ -66,7 +66,7 @@ export default function WhatsAppButton() {
 
           <div className="pt-2.5 space-y-2">
             <p className="text-xs text-[#000000]/90 font-medium leading-relaxed">
-              👋 Have questions about project deliverables, IEEE reports, or custom topics?
+              👋 Have questions about Capstonia project packages, IEEE reports, or viva prep?
             </p>
             <p className="text-[11px] font-black text-[#000000]">
               WhatsApp: <span className="underline decoration-[#25D366] decoration-2">{DISPLAY_PHONE}</span>

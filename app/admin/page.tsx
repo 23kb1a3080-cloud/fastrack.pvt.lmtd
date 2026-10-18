@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CEBE] text-left text-xs space-y-1.5">
           <p className="font-extrabold text-[#000000]">Default Admin Demo Credentials:</p>
-          <p className="text-[#000000]/80">Email: <strong className="text-[#000000]">admin@fastrack.com</strong></p>
+          <p className="text-[#000000]/80">Email: <strong className="text-[#000000]">admin@capstonia.com</strong></p>
           <p className="text-[#000000]/80">Password: <strong className="text-[#000000]">adminpassword123</strong></p>
         </div>
         <Link
