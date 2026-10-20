@@ -15,6 +15,7 @@ import {
   Zap,
   Flame,
   Sparkles,
+  MessageCircle,
 } from 'lucide-react';
 
 export async function generateStaticParams() {
@@ -217,11 +218,11 @@ export default async function ProjectDetailsPage({
                 )}
               </div>
               <span className="text-xs text-[#000000]/70 font-bold block mt-1">
-                {isStarting3000 ? '🔥 Best Starter Value • Complete Package Included' : 'One-time purchase • Unlimited access & re-downloads'}
+                {isStarting3000 ? '🔥 Best Starter Value • Direct WhatsApp Delivery' : 'Direct WhatsApp Order • Instant Deliverables & Support'}
               </span>
             </div>
 
-            {/* Black Razorpay Purchase Button */}
+            {/* Direct WhatsApp Purchase / Order Button */}
             <RazorpayButton
               projectId={project.id}
               projectTitle={project.title}
@@ -231,26 +232,26 @@ export default async function ProjectDetailsPage({
             {/* Deliverables checklist */}
             <div className="space-y-2.5 pt-4 border-t border-[#D8CEBE] text-xs text-[#000000] font-bold">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#000000]" />
+                <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
                 <span>Verified Source Code (ZIP)</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#000000]" />
-                <span>Formatted IEEE Project Report</span>
+                <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
+                <span>Formatted IEEE Project Report (.docx/PDF)</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#000000]" />
+                <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
                 <span>Seminar PPT Presentation</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#000000]" />
+                <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
                 <span>Execution Video & Setup Guide</span>
               </div>
             </div>
 
-            <div className="p-3 bg-[#ECE4DA] rounded-2xl border border-[#D8CEBE] text-center text-[11px] text-[#000000] font-bold flex items-center justify-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-[#000000]" />
-              <span>Razorpay Payments: GPay, PhonePe, Paytm, Cards</span>
+            <div className="p-3 bg-[#25D366]/10 rounded-2xl border border-[#25D366]/30 text-center text-[11px] text-[#000000] font-bold flex items-center justify-center gap-1.5">
+              <MessageCircle className="h-3.5 w-3.5 text-[#25D366] fill-[#25D366]" />
+              <span>Direct WhatsApp Delivery • Instant Chat at +91 73823 24346</span>
             </div>
           </div>
         </div>

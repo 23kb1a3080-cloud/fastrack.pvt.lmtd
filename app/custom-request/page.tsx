@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { BRANCHES } from '@/lib/constants';
-import { Sparkles, CheckCircle2, Send, Clock, ShieldCheck, Code2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, Send, Clock, ShieldCheck, Code2, MessageCircle, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+
+const WHATSAPP_PHONE = '917382324346';
+const DISPLAY_PHONE = '+91 73823 24346';
 
 export default function CustomRequestPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [whatsappLink, setWhatsappLink] = useState('');
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     studentName: '',
@@ -22,14 +26,36 @@ export default function CustomRequestPage() {
     budget: '',
   });
 
+  const generateWhatsAppMessage = () => {
+    return (
+      `Hi Capstonia Projects! 👋\n` +
+      `I would like to place a Custom Engineering Project Order:\n\n` +
+      `👤 Student Name: ${formData.studentName.trim()}\n` +
+      `📱 WhatsApp: ${formData.phone.trim()}\n` +
+      `✉️ Email: ${formData.email.trim()}\n` +
+      `🎓 Branch: ${formData.branch}\n` +
+      `📁 Category: ${formData.category === 'MAJOR_FINAL_YEAR' ? 'Major Final Year Project' : 'Mini Project'}\n` +
+      `💡 Project Topic / Title: ${formData.projectTitle.trim()}\n` +
+      (formData.techStack.trim() ? `💻 Tech Stack: ${formData.techStack.trim()}\n` : '') +
+      (formData.deadline ? `📅 Target Deadline: ${formData.deadline}\n` : '') +
+      (formData.budget.trim() ? `💰 Estimated Budget: ${formData.budget.trim()}\n` : '') +
+      (formData.description.trim() ? `📝 Project Details / Specifications:\n${formData.description.trim()}\n` : '') +
+      `\nPlease review my custom project requirements and share pricing, feasibility & IEEE deliverable details.`
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
+    const message = generateWhatsAppMessage();
+    const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    setWhatsappLink(waUrl);
+
     try {
       const supabase = createClient();
-      const { error: insertError } = await supabase
+      await supabase
         .from('custom_requests')
         .insert({
           student_name: formData.studentName,
@@ -42,48 +68,58 @@ export default function CustomRequestPage() {
           description: formData.description || null,
           deadline: formData.deadline || null,
           budget: formData.budget || null,
+          status: 'PENDING',
         });
-
-      if (insertError) {
-        throw insertError;
-      }
-
-      setSubmitted(true);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      setError(message);
+      console.warn('Database save warning (proceeding to WhatsApp):', err);
     } finally {
       setIsSubmitting(false);
+      setSubmitted(true);
+      // Automatically redirect directly to WhatsApp
+      if (typeof window !== 'undefined') {
+        window.open(waUrl, '_blank');
+      }
     }
   };
-
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-[#000000]">
       {/* Page Header */}
       <div className="text-center space-y-4 mb-10">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#000000] text-[#FFFFFF] shadow-xs">
-          <Sparkles className="h-3.5 w-3.5 text-[#FFFFFF]" />
-          Tailored Engineering Solutions
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#25D366] text-white shadow-xs">
+          <MessageCircle className="h-3.5 w-3.5 fill-white" />
+          Direct WhatsApp Ordering & Solutions
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#000000]">
           Request a Custom Project
         </h1>
         <p className="text-sm text-[#000000]/80 max-w-xl mx-auto font-medium leading-relaxed">
-          Need a unique topic, specific IEEE paper implementation, or custom tech stack? Fill out your requirements below and our engineering team will build your custom deliverable package.
+          Need a unique topic, specific IEEE paper implementation, or custom tech stack? Fill out your details below and we will directly connect with you on WhatsApp ({DISPLAY_PHONE}) with complete pricing & package options.
         </p>
       </div>
 
       {submitted ? (
-        <div className="bg-[#FAF6F0] p-8 sm:p-12 rounded-3xl border border-[#D8CEBE] text-center space-y-6 shadow-sm">
-          <div className="w-16 h-16 bg-[#000000] text-[#FFFFFF] rounded-2xl flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-10 w-10 text-[#FFFFFF]" />
+        <div className="bg-[#FAF6F0] p-8 sm:p-12 rounded-3xl border-2 border-[#D8CEBE] text-center space-y-6 shadow-sm">
+          <div className="w-16 h-16 bg-[#25D366] text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
+            <CheckCircle2 className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-[#000000]">Custom Request Received!</h2>
-          <p className="text-sm text-[#000000]/80 max-w-md mx-auto font-medium">
-            Thank you, <span className="font-extrabold">{formData.studentName}</span>. Our technical leads are reviewing your project requirements (<span className="font-bold">&quot;{formData.projectTitle}&quot;</span>). We will contact you via WhatsApp & Email within 2 hours with estimated pricing and delivery timeline.
+          <h2 className="text-2xl font-black text-[#000000]">Custom Request Ready!</h2>
+          <p className="text-sm text-[#000000]/80 max-w-md mx-auto font-medium leading-relaxed">
+            Thank you, <span className="font-extrabold">{formData.studentName}</span>. Your requirements for <strong className="text-black">&quot;{formData.projectTitle}&quot;</strong> have been prepared. We are redirecting you to WhatsApp to discuss code, IEEE report format, and delivery with our mentors.
           </p>
-          <div className="pt-4 border-t border-[#D8CEBE]">
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={whatsappLink || `https://wa.me/${WHATSAPP_PHONE}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="h-4 w-4 fill-white" />
+              <span>Chat on WhatsApp Now ({DISPLAY_PHONE})</span>
+              <ArrowRight className="h-4 w-4" />
+            </a>
+
             <button
               onClick={() => {
                 setSubmitted(false);
@@ -100,9 +136,9 @@ export default function CustomRequestPage() {
                   budget: '',
                 });
               }}
-              className="px-6 py-2.5 rounded-full bg-[#000000] text-[#FFFFFF] font-extrabold text-xs shadow-xs hover:bg-[#1a1a1a] transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#ECE4DA] hover:bg-[#D8CEBE] text-[#000000] font-extrabold text-xs transition-colors"
             >
-              Submit Another Custom Request
+              Submit Another Request
             </button>
           </div>
         </div>
@@ -137,7 +173,7 @@ export default function CustomRequestPage() {
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91 9876543210"
+                  placeholder="+91 98765 43210"
                   className="w-full px-3.5 py-2.5 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs font-bold text-[#000000] focus:outline-none focus:border-[#000000]"
                 />
               </div>
@@ -153,7 +189,7 @@ export default function CustomRequestPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="student@college.edu"
+                  placeholder="student@college.edu.in"
                   className="w-full px-3.5 py-2.5 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs font-bold text-[#000000] focus:outline-none focus:border-[#000000]"
                 />
               </div>
@@ -268,10 +304,11 @@ export default function CustomRequestPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01]"
             >
-              <Send className="h-4 w-4" />
-              <span>{isSubmitting ? 'Submitting...' : 'Submit Custom Project Order'}</span>
+              <MessageCircle className="h-4 w-4 fill-white" />
+              <span>{isSubmitting ? 'Opening WhatsApp...' : `Submit & Chat on WhatsApp (${DISPLAY_PHONE})`}</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
           </form>
 
@@ -285,19 +322,19 @@ export default function CustomRequestPage() {
 
               <ul className="space-y-3 text-xs text-[#000000]/90 font-medium">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" />
                   <span><strong>100% Executable Code:</strong> Fully debugged & tested on latest runtimes.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" />
                   <span><strong>Complete IEEE Deliverables:</strong> Word report format + viva PPT slides.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" />
                   <span><strong>Video Installation Guide:</strong> Step-by-step setup video for local execution.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" />
                   <span><strong>Fast Turnaround:</strong> Delivery within 24-48 hours depending on scope.</span>
                 </li>
               </ul>
@@ -309,7 +346,7 @@ export default function CustomRequestPage() {
                 <span>Response Time</span>
               </div>
               <p className="text-xs text-[#000000]/80 font-medium leading-relaxed">
-                Our support desk responds to custom requests within 2 hours during active working hours (9 AM - 10 PM IST).
+                Direct WhatsApp response within 15 minutes during active hours (9 AM - 10 PM IST).
               </p>
             </div>
 
