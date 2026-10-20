@@ -35,11 +35,11 @@ export default function Footer() {
 
           <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#ECE4DA] border border-[#D8CEBE]">
             <div className="h-7 w-7 relative shrink-0">
-              <Image src="/images/logo.jpg" alt="Logo" fill className="object-contain rounded-lg" />
+              <Image src="/images/logo.jpg" alt="Capstonia Logo" fill className="object-contain rounded-lg" />
             </div>
             <div>
-              <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">Razorpay Secure UPI</h4>
-              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">GPay, PhonePe, Paytm, Cards</p>
+              <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">Direct WhatsApp Support</h4>
+              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">+91 73823 24346 • Instant response</p>
             </div>
           </div>
         </div>
@@ -51,19 +51,19 @@ export default function Footer() {
               <div className="h-9 w-9 rounded-xl bg-[#000000] p-1 flex items-center justify-center shrink-0 border border-[#D8CEBE]">
                 <Image
                   src="/images/logo.jpg"
-                  alt="fastrackprojects logo"
+                  alt="Capstonia logo"
                   width={28}
                   height={28}
                   className="object-contain rounded-lg"
                 />
               </div>
-              <span className="text-lg font-extrabold text-[#000000]">fastrackprojects</span>
+              <span className="text-lg font-extrabold text-[#000000]">Capstonia</span>
             </div>
             <p className="text-xs text-[#000000]/90 leading-relaxed max-w-sm font-medium">
               India&apos;s premier engineering project store for B.Tech, B.E., and Diploma students. Complete tested deliverables with source code, IEEE reports, PPTs, and setup guides.
             </p>
             <div className="text-xs text-[#000000]/60 font-medium">
-              © 2026 fastrackprojects. All rights reserved.
+              © 2026 Capstonia. All rights reserved.
             </div>
           </div>
 
@@ -106,6 +106,16 @@ export default function Footer() {
               <li><Link href="/terms" className="hover:opacity-70">Terms & Conditions</Link></li>
               <li><Link href="/privacy" className="hover:opacity-70">Privacy Policy</Link></li>
               <li><Link href="/login" className="hover:opacity-70">Sign In / Register</Link></li>
+              <li className="pt-1.5">
+                <a
+                  href="https://wa.me/917382324346?text=Hi%20Capstonia%20Projects!%20I%20have%20a%20query%20about%20an%20engineering%20project."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-700 hover:text-emerald-900 font-extrabold flex items-center gap-1"
+                >
+                  <span>💬 WhatsApp: +91 73823 24346</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>

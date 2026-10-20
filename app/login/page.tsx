@@ -81,6 +81,7 @@ function AuthContent() {
         role: 'STUDENT',
         branch: 'CSE',
       };
+      localStorage.setItem('capstonia_user', JSON.stringify(user));
       localStorage.setItem('fastrack_user', JSON.stringify(user));
       window.dispatchEvent(new Event('authChange'));
 
@@ -144,6 +145,7 @@ function AuthContent() {
         role: 'STUDENT',
       };
 
+      localStorage.setItem('capstonia_user', JSON.stringify(user));
       localStorage.setItem('fastrack_user', JSON.stringify(user));
       window.dispatchEvent(new Event('authChange'));
 
@@ -167,9 +169,10 @@ function AuthContent() {
       setLoading(false);
       const user =
         role === 'ADMIN'
-          ? { name: 'Admin Lead', email: 'admin@fastrackprojects.com', role: 'ADMIN', branch: 'CSE' }
+          ? { name: 'Admin Lead', email: 'admin@capstonia.com', role: 'ADMIN', branch: 'CSE' }
           : { name: 'Rahul Sharma', email: 'rahul.student@college.edu', role: 'STUDENT', branch: 'CSE' };
 
+      localStorage.setItem('capstonia_user', JSON.stringify(user));
       localStorage.setItem('fastrack_user', JSON.stringify(user));
       window.dispatchEvent(new Event('authChange'));
 
@@ -187,14 +190,14 @@ function AuthContent() {
         <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-[#000000] p-1.5 shadow-md border border-[#D8CEBE]">
           <Image
             src="/images/logo.jpg"
-            alt="fastrackprojects logo"
+            alt="Capstonia logo"
             width={48}
             height={48}
             className="object-contain rounded-xl"
           />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-[#000000] tracking-tight">
-          {mode === 'login' ? 'Welcome Back to FastTrack' : 'Create Your Student Account'}
+          {mode === 'login' ? 'Welcome Back to Capstonia' : 'Create Your Student Account'}
         </h1>
         <p className="text-xs text-[#000000]/80 font-medium">
           {mode === 'login'

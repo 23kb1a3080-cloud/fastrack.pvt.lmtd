@@ -12,14 +12,14 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">1. Information We Collect</h2>
           <p className="text-[#000000]/80">
-            When you purchase a project or submit a custom project request on fastrackprojects, we collect minimal necessary information including your name, email address, phone number (for WhatsApp updates), and payment transaction metadata.
+            When you purchase a project or submit a custom project request on Capstonia, we collect minimal necessary information including your name, email address, phone number (for WhatsApp updates), and project specifications.
           </p>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-extrabold text-[#000000]">2. Payment Processing Security</h2>
+          <h2 className="text-base font-extrabold text-[#000000]">2. Order & Direct WhatsApp Communication</h2>
           <p className="text-[#000000]/80">
-            We do not store or process payment card details or UPI PINs on our servers. All transactions are handled securely through PCI-DSS compliant Razorpay gateways.
+            All order confirmations, delivery links, and technical mentoring are communicated directly via WhatsApp (+91 73823 24346) and email.
           </p>
         </section>
 
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">4. Data Protection & Sharing</h2>
           <p className="text-[#000000]/80">
-            fastrackprojects does not sell, trade, or rent user personal data to any third-party marketing companies.
+            Capstonia does not sell, trade, or rent user personal data to any third-party marketing companies.
           </p>
         </section>
 
