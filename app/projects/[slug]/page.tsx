@@ -2,11 +2,10 @@ export const instant = false;
 
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { BRANCHES } from '@/lib/constants';
+import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
 import { formatINR } from '@/lib/utils/currency';
 import { normalizeProject, isStartingTier } from '@/lib/utils/project';
 import RazorpayButton from '@/components/checkout/razorpay-button';
-import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
   FileText,
@@ -22,16 +21,19 @@ export async function generateStaticParams() {
   try {
     const supabase = createAdminClient();
     const { data: projects, error } = await supabase.from('projects').select('slug');
-    if (error || !projects) {
-      return [];
+    if (!error && projects && projects.length > 0) {
+      return projects.map((project) => ({
+        slug: project.slug,
+      }));
     }
-    return projects.map((project) => ({
-      slug: project.slug,
-    }));
   } catch (error) {
     console.warn('generateStaticParams error:', error);
-    return [];
   }
+
+  // Ensure generateStaticParams always returns at least one item (required by Next.js Cache Components)
+  return DEMO_PROJECTS.map((project) => ({
+    slug: project.slug,
+  }));
 }
 
 export default async function ProjectDetailsPage({
@@ -40,11 +42,23 @@ export default async function ProjectDetailsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data: rawProject } = await supabase.from('projects').select('*').eq('slug', slug).single();
+  let rawProject = null;
+
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase.from('projects').select('*').eq('slug', slug).maybeSingle();
+    rawProject = data;
+  } catch (err) {
+    console.warn('Failed to fetch project from database:', err);
+  }
 
   if (!rawProject) {
-    notFound();
+    const demo = DEMO_PROJECTS.find((p) => p.slug === slug);
+    if (demo) {
+      rawProject = demo;
+    } else {
+      notFound();
+    }
   }
 
   const project = normalizeProject(rawProject);
