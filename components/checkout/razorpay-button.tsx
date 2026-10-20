@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { formatINR } from '@/lib/utils/currency';
-import { MessageCircle, CheckCircle2, Sparkles, X, ArrowRight, ShieldCheck } from 'lucide-react';
+import { MessageCircle, CheckCircle2, Sparkles, X, ArrowRight, Lock, LogIn, UserPlus, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 const WHATSAPP_PHONE = '917382324346';
@@ -21,11 +23,52 @@ export default function RazorpayButton({
   priceInr,
   className = '',
 }: RazorpayButtonProps) {
-  const [showModal, setShowModal] = useState(false);
+  const pathname = usePathname();
+  const [user, setUser] = useState<{ name: string; email: string; phone?: string; role?: string } | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      try {
+        const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setUser(parsed);
+          if (parsed.name) setStudentName(parsed.name);
+          if (parsed.email) setEmail(parsed.email);
+          if (parsed.phone) setPhone(parsed.phone);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+    window.addEventListener('authChange', checkAuth);
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('authChange', checkAuth);
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
+
+  const handleOrderClick = () => {
+    // Sign in and signup is mandatory for ordering the project
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    setShowOrderModal(true);
+  };
 
   const getWhatsAppMessage = (nameVal?: string, phoneVal?: string, emailVal?: string) => {
     return (
@@ -33,9 +76,9 @@ export default function RazorpayButton({
       `I want to order this engineering project package:\n\n` +
       `📦 Project: ${projectTitle}\n` +
       `💰 Package Price: ${formatINR(priceInr)}\n` +
-      `👤 Student Name: ${nameVal?.trim() || 'Engineering Student'}\n` +
-      `📱 WhatsApp: ${phoneVal?.trim() || 'My WhatsApp Number'}\n` +
-      (emailVal?.trim() ? `✉️ Email: ${emailVal.trim()}\n` : '') +
+      `👤 Student Name: ${nameVal?.trim() || user?.name || 'Engineering Student'}\n` +
+      `📱 WhatsApp: ${phoneVal?.trim() || user?.phone || 'My WhatsApp Number'}\n` +
+      `✉️ Student Account Email: ${emailVal?.trim() || user?.email || 'N/A'}\n` +
       `\n✅ Deliverables Included:\n` +
       `• Verified Source Code (ZIP)\n` +
       `• IEEE Format Project Report (.docx/PDF)\n` +
@@ -56,25 +99,23 @@ export default function RazorpayButton({
     setIsSubmitting(true);
 
     try {
-      // Save order inquiry to Supabase custom_requests so admin can track inquiries
       const supabase = createClient();
       await supabase.from('custom_requests').insert({
-        student_name: studentName.trim() || 'WhatsApp Student Buyer',
-        email: email.trim() || `${phone.replace(/\D/g, '') || 'whatsapp'}@student.inquiry`,
-        phone: phone.trim() || 'WhatsApp Direct',
+        student_name: studentName.trim() || user?.name || 'Student Buyer',
+        email: email.trim() || user?.email || `${phone.replace(/\D/g, '')}@student.capstonia`,
+        phone: phone.trim() || user?.phone || 'WhatsApp Direct',
         branch: 'CSE',
         category: 'DIRECT_ORDER',
         project_title: `ORDER: ${projectTitle} (${formatINR(priceInr)})`,
-        description: `Direct WhatsApp Project Order inquiry for project: ${projectTitle}`,
+        description: `Verified Student Order for project: ${projectTitle} (User: ${user?.email || 'N/A'})`,
         budget: `${formatINR(priceInr)}`,
         status: 'PENDING',
       });
     } catch (err) {
-      console.warn('Could not record order inquiry to database:', err);
+      console.warn('Could not record order to database:', err);
     }
 
     try {
-      // Also cache in localStorage for customer history
       const existingRaw = localStorage.getItem('capstonia_purchased_orders') || localStorage.getItem('fastrack_purchased_orders');
       const existing = existingRaw ? JSON.parse(existingRaw) : [];
       const newInquiry = {
@@ -84,7 +125,7 @@ export default function RazorpayButton({
         projectTitle,
         amount: priceInr,
         createdAt: new Date().toISOString(),
-        buyerEmail: email || phone,
+        buyerEmail: email || user?.email || phone,
         status: 'WHATSAPP_ORDER',
       };
       existing.unshift(newInquiry);
@@ -92,7 +133,7 @@ export default function RazorpayButton({
     } catch (_) {}
 
     setIsSubmitting(false);
-    setShowModal(false);
+    setShowOrderModal(false);
 
     // Open WhatsApp
     handleDirectWhatsApp();
@@ -103,8 +144,8 @@ export default function RazorpayButton({
       {/* Prominent Direct WhatsApp Order Button */}
       <div className="space-y-2">
         <button
-          onClick={() => setShowModal(true)}
-          className={`w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black py-4 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2.5 text-sm active:scale-[0.99] border-2 border-[#1EBE5D] ${className}`}
+          onClick={handleOrderClick}
+          className={`w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black py-4 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2.5 text-sm active:scale-[0.99] border-2 border-[#1EBE5D] cursor-pointer ${className}`}
         >
           {/* Universal WhatsApp Icon */}
           <svg className="w-5 h-5 fill-white shrink-0" viewBox="0 0 32 32" aria-hidden="true">
@@ -113,19 +154,79 @@ export default function RazorpayButton({
           <span>Order via WhatsApp — {formatINR(priceInr)}</span>
         </button>
 
-        <p className="text-center text-[11px] text-[#000000]/70 font-bold">
-          💬 Instant chat with technical team • Direct ZIP delivery via WhatsApp
+        <p className="text-center text-[11px] text-[#000000]/70 font-bold flex items-center justify-center gap-1">
+          <Lock className="h-3 w-3 text-[#000000]/60" />
+          <span>Student Sign In required to place order • Instant WhatsApp Delivery</span>
         </p>
       </div>
 
-      {/* Quick WhatsApp Order Modal */}
-      {showModal && (
+      {/* Mandatory Sign In Modal (shown when guest student clicks Order) */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#000000]/70 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6F0] border-2 border-[#D8CEBE] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-[#000000] text-white flex items-center justify-center mx-auto shadow-md">
+              <Lock className="h-7 w-7 text-white" />
+            </div>
+
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-amber-400 text-black uppercase tracking-wider mb-2">
+                Sign In Required to Order
+              </span>
+              <h3 className="text-xl font-black text-[#000000]">Sign In to Order Project</h3>
+              <p className="text-xs text-[#000000]/80 font-medium mt-2 leading-relaxed">
+                Please sign in or create a student account to order <strong>&quot;{projectTitle}&quot;</strong>. Having an account protects your order history, verified IEEE downloads, and 1-on-1 technical mentoring.
+              </p>
+            </div>
+
+            <div className="p-3 bg-[#ECE4DA] border border-[#D8CEBE] rounded-2xl text-[11px] text-[#000000] font-bold text-left space-y-1">
+              <div className="text-black font-extrabold flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
+                <span>Why Sign In is Required:</span>
+              </div>
+              <div className="pl-5 text-[#000000]/80 font-medium text-[11px] space-y-0.5">
+                <div>• Permanent access to Source Code ZIP & Reports</div>
+                <div>• Verified WhatsApp student support & guidance</div>
+                <div>• Fast 1-click re-downloads on any device</div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              <Link
+                href={`/login?redirect=${encodeURIComponent(pathname)}&reason=order`}
+                className="w-full py-3.5 bg-[#000000] hover:bg-[#1a1a1a] text-white font-black rounded-full text-xs shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+              >
+                <LogIn className="h-4 w-4" />
+                <span>Sign In with Existing Account</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+
+              <Link
+                href={`/login?mode=signup&redirect=${encodeURIComponent(pathname)}&reason=order`}
+                className="w-full py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black rounded-full text-xs shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span>Create New Student Account (Sign Up)</span>
+              </Link>
+
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="w-full py-2 text-xs font-bold text-[#000000]/60 hover:text-[#000000] transition-colors"
+              >
+                Cancel and continue browsing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Confirmation Modal (shown when authenticated user clicks Order) */}
+      {showOrderModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#000000]/70 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-[#FAF6F0] border-2 border-[#D8CEBE] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5">
             <div className="flex items-start justify-between border-b border-[#D8CEBE] pb-4">
               <div>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#25D366] text-white uppercase tracking-wider mb-1.5">
-                  Direct WhatsApp Delivery
+                  Verified Student Order
                 </span>
                 <h3 className="text-lg font-black text-[#000000]">Order Project Package</h3>
                 <p className="text-xs text-[#000000]/80 font-medium">
@@ -133,13 +234,23 @@ export default function RazorpayButton({
                 </p>
               </div>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowOrderModal(false)}
                 className="text-[#000000]/70 hover:text-[#000000] p-1.5 rounded-full hover:bg-[#ECE4DA] transition-colors"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
+
+            {/* Signed In User Pill */}
+            {user && (
+              <div className="p-3 bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl flex items-center gap-2 text-xs text-[#000000] font-bold">
+                <User className="h-4 w-4 text-[#25D366] shrink-0" />
+                <span className="truncate">
+                  Signed in as <strong>{user.name}</strong> ({user.email})
+                </span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmitOrder} className="space-y-4">
               <div>
@@ -172,7 +283,7 @@ export default function RazorpayButton({
 
               <div>
                 <label className="block text-xs font-extrabold text-[#000000] uppercase tracking-wider mb-1">
-                  Email Address (Optional)
+                  Student Email
                 </label>
                 <input
                   type="email"
@@ -183,15 +294,15 @@ export default function RazorpayButton({
                 />
               </div>
 
-              <div className="p-3 bg-[#ECE4DA] border border-[#D8CEBE] rounded-2xl space-y-1.5 text-[11px] text-[#000000] font-bold">
-                <div className="flex items-center gap-1.5 text-[#25D366]">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-[#25D366]" />
-                  <span className="text-black font-extrabold">Instant WhatsApp Package:</span>
+              <div className="p-3 bg-[#ECE4DA] border border-[#D8CEBE] rounded-2xl space-y-1 text-[11px] text-[#000000] font-bold">
+                <div className="text-black font-extrabold flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
+                  <span>Deliverables Ready on WhatsApp:</span>
                 </div>
                 <div className="text-[11px] text-[#000000]/80 font-medium pl-5 space-y-0.5">
-                  <div>• Complete Verified Source Code ZIP</div>
-                  <div>• IEEE Standard Project Report & PPT</div>
-                  <div>• Video Setup & Direct Support</div>
+                  <div>• Tested Source Code ZIP</div>
+                  <div>• IEEE Formatted Report (.docx/PDF) & Viva PPT</div>
+                  <div>• Video Setup & Technical Guidance</div>
                 </div>
               </div>
 
@@ -199,19 +310,11 @@ export default function RazorpayButton({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black rounded-full text-xs shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+                  className="w-full py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black rounded-full text-xs shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01] cursor-pointer"
                 >
                   <MessageCircle className="h-4 w-4 fill-white" />
                   <span>Send Order to WhatsApp ({DISPLAY_PHONE})</span>
                   <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDirectWhatsApp}
-                  className="w-full py-2.5 bg-transparent hover:bg-[#ECE4DA] text-[#000000] font-extrabold rounded-full text-[11px] transition-colors"
-                >
-                  ⚡ Skip form & Open WhatsApp Directly
                 </button>
               </div>
             </form>

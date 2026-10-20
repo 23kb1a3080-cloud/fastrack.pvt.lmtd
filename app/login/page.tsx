@@ -86,8 +86,9 @@ function AuthContent() {
       window.dispatchEvent(new Event('authChange'));
 
       setSuccessMsg('Successfully authenticated with Supabase! Redirecting...');
+      const target = searchParams.get('redirect') || '/dashboard';
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push(target);
       }, 800);
 
     } catch (err: any) {
@@ -149,10 +150,10 @@ function AuthContent() {
       localStorage.setItem('fastrack_user', JSON.stringify(user));
       window.dispatchEvent(new Event('authChange'));
 
-      setSuccessMsg('Account registered with Supabase! Redirecting to your dashboard...');
-
+      setSuccessMsg('Account registered with Supabase! Redirecting...');
+      const target = searchParams.get('redirect') || '/dashboard';
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push(target);
       }, 1000);
     } catch (err: any) {
       setErrorMsg(err.message || 'An unexpected error occurred during sign up.');
@@ -177,8 +178,9 @@ function AuthContent() {
       window.dispatchEvent(new Event('authChange'));
 
       setSuccessMsg(`Signed in as ${user.name} (${role})! Redirecting...`);
+      const target = searchParams.get('redirect') || (role === 'ADMIN' ? '/admin' : '/dashboard');
       setTimeout(() => {
-        router.push(role === 'ADMIN' ? '/admin' : '/dashboard');
+        router.push(target);
       }, 800);
     }, 600);
   };
@@ -205,6 +207,19 @@ function AuthContent() {
             : 'Join 10,000+ engineering students downloading verified deliverables.'}
         </p>
       </div>
+
+      {/* Mandatory Sign In Notice for Ordering */}
+      {searchParams.get('reason') === 'order' && (
+        <div className="mb-4 p-4 rounded-2xl bg-amber-100/80 border-2 border-amber-400 text-amber-950 text-xs font-bold flex items-start gap-3 shadow-sm">
+          <Lock className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-extrabold text-[13px] text-amber-950">Account Required to Order</p>
+            <p className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
+              Please sign in or register your account to complete your project order. Once authenticated, you will be redirected right back to finalize delivery on WhatsApp!
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Auth Card Container */}
       <div className="bg-[#FAF6F0] p-6 sm:p-8 rounded-3xl border border-[#D8CEBE] shadow-xs space-y-6">
