@@ -1,12 +1,13 @@
+export const instant = false;
+
 import { notFound } from 'next/navigation';
 import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
 import { EngineeringBranch } from '@/lib/types';
+import { normalizeProjects } from '@/lib/utils/project';
 import ProjectCard from '@/components/catalog/project-card';
 import BranchCard from '@/components/catalog/branch-card';
 import Link from 'next/link';
-
-// Next.js 16 PPR/Instant Navigation configuration
-export const instant = false;
+import { createClient } from '@/lib/supabase/server';
 
 export async function generateStaticParams() {
   return BRANCHES.map((branch) => ({
@@ -27,7 +28,19 @@ export default async function BranchPage({
     notFound();
   }
 
-  const branchProjects = DEMO_PROJECTS.filter((p) => p.branch === branchUpper);
+  const supabase = await createClient();
+  let branchProjects: any[] = [];
+  try {
+    const { data } = await supabase.from('projects').select('*').eq('branch', branchUpper).eq('is_published', true);
+    if (data && data.length > 0) {
+      branchProjects = normalizeProjects(data);
+    } else {
+      branchProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => p.branch === branchUpper);
+    }
+  } catch (err) {
+    console.warn('Failed to load branch projects:', err);
+    branchProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => p.branch === branchUpper);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-[#ECE4DA] text-[#000000]">

@@ -1,161 +1,120 @@
+export const instant = false;
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
 import BranchCard from '@/components/catalog/branch-card';
 import BranchNav from '@/components/catalog/branch-nav';
 import ProjectCard from '@/components/catalog/project-card';
-import {
-  ArrowRight,
-  Download,
-  Star,
-  Award,
-  BookOpen,
-  FileText,
-  Sparkles,
-  Zap,
-} from 'lucide-react';
+import { normalizeProjects } from '@/lib/utils/project';
+import { ArrowRight, Download, Star, Award, Video, FileText, Search, ShieldCheck, Sparkles, Flame, Zap } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
 
-export default function HomePage() {
-  const featuredProjects = DEMO_PROJECTS.filter((p) => p.is_featured);
-  // Pick the top 3 featured projects for the hero row
-  const heroProjects = featuredProjects.slice(0, 3);
+export default async function HomePage() {
+  const supabase = await createClient();
+  let allPublished: any[] = [];
+  try {
+    const { data } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('is_published', true);
+    if (data && data.length > 0) {
+      allPublished = normalizeProjects(data);
+    } else {
+      allPublished = normalizeProjects(DEMO_PROJECTS);
+    }
+  } catch (error) {
+    console.warn('Failed to load projects:', error);
+    allPublished = normalizeProjects(DEMO_PROJECTS);
+  }
+
+  const featuredProjects = allPublished.filter((p) => p.is_featured);
+  const starting3000Projects = allPublished.filter(
+    (p) => (p.discounted_price_inr || p.price_inr) === 3000
+  );
 
   return (
     <div className="space-y-20 pb-24 bg-[#ECE4DA] text-[#000000]">
-      {/* ======================================================== */}
-      {/* HERO SECTION                                             */}
-      {/* Left: Circuit Chip Photo | Center: Headline, CTAs, 3 Cards */}
-      {/* Right: Laptop with Code & Neural Network Nodes Photo     */}
-      {/* ======================================================== */}
-      <section className="relative pt-12 sm:pt-16 pb-16 bg-[#F5EFE6] border-b border-[#D8CEBE] overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Main Hero Header: Headline, Trust Badge, Subtitle & 2 CTA Buttons */}
-          <div className="text-center space-y-6 max-w-3xl mx-auto">
-            {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ECE4DA] border border-[#D8CEBE] text-[#000000] text-xs font-bold shadow-2xs">
-              <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-              <span>Verified B.Tech / B.E. Engineering Projects Store</span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#000000] tracking-tight leading-[1.1]">
-              Ready-to-Submit Final Year & Mini{' '}
-              <span className="underline decoration-[#000000]/30">
-                Engineering Projects
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-sm sm:text-base text-[#000000]/85 max-w-2xl mx-auto leading-relaxed font-medium">
-              Complete tested packages for <strong className="text-[#000000]">CSE, IT, AI&DS, AIML, & CSE (Data Science)</strong>. Includes verified source code ZIP, IEEE formatted report (Word & PDF), viva PPT presentation deck, & step-by-step setup documentation guide.
-            </p>
-
-            {/* Two CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              {/* CTA 1: Primary Action */}
-              <Link
-                href="/projects"
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2.5 shadow-md hover:scale-102 active:scale-98 group"
-              >
-                <span>Explore All Projects</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* CTA 2: Secondary Action */}
-              <Link
-                href="/custom-request"
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#FAF6F0] hover:bg-[#ECE4DA] text-[#000000] text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 border border-[#D8CEBE] shadow-xs hover:border-[#000000]/40"
-              >
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                <span>Custom Project Request</span>
-              </Link>
-            </div>
-
-            {/* Quick Feature Guarantees */}
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-bold text-[#000000]/80 pt-2">
-              <span className="flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-600" /> Instant ZIP Download
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5 text-[#000000]" /> IEEE Formatted Word & PDF
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <Award className="h-3.5 w-3.5 text-[#000000]" /> Viva Presentation Deck
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <BookOpen className="h-3.5 w-3.5 text-[#000000]" /> Setup Documentation Guide
-              </span>
-            </div>
+      {/* Hero Section */}
+      <section className="relative pt-16 md:pt-24 pb-16 bg-[#F5EFE6] border-b border-[#D8CEBE]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Highlight Starting From 3000 Trust Badge */}
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-amber-400/20 border-2 border-amber-500 text-[#000000] text-xs font-black mb-6 shadow-sm hover:scale-105 transition-transform">
+            <Sparkles className="h-4 w-4 text-amber-700 fill-amber-500" />
+            <span>Verified B.Tech / B.E. Projects • <strong className="text-black font-black underline decoration-amber-500">Starting From ₹3,000</strong></span>
           </div>
 
-          {/* Hero Visual Showcase: Real Engineering Lab Collaboration Photography */}
-          <div className="mt-10 relative rounded-3xl overflow-hidden border border-[#D8CEBE] shadow-md bg-[#FAF6F0]">
-            <div className="relative aspect-[16/7] sm:aspect-[21/9] w-full">
+          {/* Title */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-[#000000] tracking-tight leading-[1.1] max-w-4xl mx-auto">
+            Ready-to-Submit Final Year & Mini{' '}
+            <span className="underline decoration-amber-500/80">
+              Engineering Projects
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-6 text-base sm:text-xl text-[#000000]/90 max-w-2xl mx-auto leading-relaxed font-medium">
+            Complete tested packages for <strong className="text-[#000000]">CSE, IT, AI&DS, AIML, & CSE (Data Science)</strong>. Includes source code ZIP, IEEE formatted report (Word & PDF), PPT deck, & setup video guide.
+          </p>
+
+          {/* Centered Search Bar */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <form action="/projects" method="GET" className="relative flex items-center">
+              <Search className="absolute left-4 h-5 w-5 text-[#000000]/60 pointer-events-none" />
+              <input
+                type="text"
+                name="search"
+                placeholder="Search by topic, branch (CSE, IT...), or technology (Python, React...)"
+                className="w-full pl-12 pr-36 py-4.5 rounded-full bg-[#FAF6F0] border border-[#D8CEBE] text-[#000000] placeholder-[#000000]/50 text-sm font-bold shadow-xs focus:outline-none focus:border-[#000000]"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 px-6 py-3 rounded-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] font-bold text-xs shadow-xs transition-all flex items-center gap-1.5"
+              >
+                <span>Search</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+
+          {/* Quick Search Chips with Highlighted Starting 3000 Deal */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-[#000000]/80">
+            <Link
+              href="/projects?price=STARTS_3000"
+              className="px-3.5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-black border-2 border-amber-600 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-105"
+            >
+              <Flame className="h-3.5 w-3.5 fill-black text-black" />
+              <span>Projects Starting @ ₹3,000</span>
+            </Link>
+            <span className="text-[#000000]/40">|</span>
+            <Link href="/branches/CSE" className="hover:underline">CSE Web Apps</Link>
+            <span>•</span>
+            <Link href="/branches/AIML" className="hover:underline">AI & ML Models</Link>
+            <span>•</span>
+            <Link href="/branches/AI_DS" className="hover:underline">Generative AI RAG</Link>
+            <span>•</span>
+            <Link href="/branches/IT" className="hover:underline">IT Portals</Link>
+          </div>
+
+          {/* Warm Studio Photography Banner (Squarespace Style) */}
+          <div className="mt-12 max-w-5xl mx-auto rounded-3xl overflow-hidden border border-[#D8CEBE] bg-[#FAF6F0] shadow-md p-3">
+            <div className="relative aspect-[21/9] w-full rounded-2xl overflow-hidden">
               <Image
                 src="/images/hero_engineering_lab.jpg"
-                alt="Engineering students actively collaborating on final year capstone project with laptops, code, and hardware prototypes in university innovation lab"
+                alt="Engineering Laboratory & AI Development Workstation"
                 fill
                 priority
-                sizes="(max-width: 1280px) 100vw, 1200px"
-                className="object-cover"
+                className="object-cover hover:scale-102 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/85 via-[#000000]/25 to-transparent flex flex-col justify-end p-5 sm:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-white">
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF6F0]/20 backdrop-blur-md text-[#FFFFFF] text-xs font-bold border border-white/20">
-                      <Sparkles className="h-3 w-3 text-amber-400" />
-                      Academic Capstone Innovation Lab
-                    </span>
-                    <h3 className="text-lg sm:text-2xl font-black text-white drop-shadow-sm">
-                      Tested & Evaluated by Senior Technical Evaluators
-                    </h3>
-                    <p className="text-xs sm:text-sm text-white/85 font-medium max-w-xl">
-                      Over 4,800+ engineering graduates across India have successfully submitted their projects using Capstonia deliverables.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="px-4 py-2 rounded-2xl bg-[#000000]/70 backdrop-blur-md border border-white/20 text-center">
-                      <div className="text-base sm:text-lg font-black text-amber-400">4.9 / 5.0</div>
-                      <div className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Student Rating</div>
-                    </div>
-                    <div className="px-4 py-2 rounded-2xl bg-[#000000]/70 backdrop-blur-md border border-white/20 text-center">
-                      <div className="text-base sm:text-lg font-black text-white">100%</div>
-                      <div className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Pass Rate</div>
-                    </div>
-                  </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-transparent to-transparent flex items-end p-6 sm:p-8 text-left">
+                <div className="text-[#FFFFFF]">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF6F0]/20 backdrop-blur-md text-[#FFFFFF] text-xs font-bold mb-2 border border-white/20">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                    100% Tested Engineering Workstation Deliverables
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-bold">Lab-Verified Code, Reports & Circuit Hardware</h3>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* ======================================================== */}
-          {/* ROW OF THREE PROJECT CARDS IN THE CENTER                 */}
-          {/* ======================================================== */}
-          <div className="mt-14 space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#000000]">
-                  Featured Deliverable Packages • Ready for Download
-                </h2>
-              </div>
-              <Link
-                href="/projects"
-                className="text-xs font-bold text-[#000000] hover:underline flex items-center gap-1"
-              >
-                <span>View all {DEMO_PROJECTS.length} projects</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
-            {/* 3-Card Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {heroProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
             </div>
           </div>
         </div>
@@ -193,7 +152,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trending Store Products (Full Catalog Showcase) */}
+      {/* Starting From ₹3,000 Spotlight Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-50/80 via-[#FAF6F0] to-amber-100/40 border-2 border-amber-500/80 shadow-md">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-black text-xs font-black mb-2 shadow-xs border border-amber-600/30">
+                <Flame className="h-3.5 w-3.5 fill-black text-black" />
+                <span>HOT STARTER PACKAGES • FLAT ₹3,000</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#000000]">
+                Highlighted Projects Starting From ₹3,000
+              </h2>
+              <p className="text-sm text-[#000000]/80 mt-1 font-medium max-w-2xl">
+                Best value ready-to-run projects designed for immediate semester viva submission. Includes complete tested source code ZIP, IEEE formatted report, and ready PPT presentation slides.
+              </p>
+            </div>
+            <Link
+              href="/projects?price=STARTS_3000"
+              className="px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-black text-xs font-black transition-all flex items-center gap-2 shadow-sm shrink-0"
+            >
+              <span>View All ₹3,000 Projects ({starting3000Projects.length})</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {starting3000Projects.slice(0, 3).map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trending Store Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
           <div>
@@ -201,7 +193,7 @@ export default function HomePage() {
               Top Rated Deliverables
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#000000]">
-              All Verified Engineering Projects
+              Featured Engineering Projects
             </h2>
           </div>
           <Link
@@ -213,9 +205,21 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+          {(featuredProjects || []).length > 0 ? (
+            featuredProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 bg-[#FAF6F0] rounded-3xl border border-[#D8CEBE]">
+              <p className="text-sm font-bold text-[#000000]">No featured projects found.</p>
+              <Link
+                href="/projects"
+                className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#000000] text-white text-xs font-bold"
+              >
+                Browse Catalog <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -263,11 +267,11 @@ export default function HomePage() {
 
               <div className="p-5 rounded-2xl bg-[#ECE4DA] border border-[#D8CEBE] flex items-start gap-4">
                 <div className="h-10 w-10 rounded-xl bg-[#000000] flex items-center justify-center text-[#FFFFFF] shrink-0">
-                  <BookOpen className="h-5 w-5" />
+                  <Video className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#000000] text-base">Setup Manual & Run Instructions</h4>
-                  <p className="text-xs text-[#000000]/80 mt-1 font-medium">Comprehensive setup manual + terminal run commands for local execution.</p>
+                  <h4 className="font-extrabold text-[#000000] text-base">Execution Video & Setup Guide</h4>
+                  <p className="text-xs text-[#000000]/80 mt-1 font-medium">Step-by-step video walkthrough + environment setup guide for all projects.</p>
                 </div>
               </div>
             </div>

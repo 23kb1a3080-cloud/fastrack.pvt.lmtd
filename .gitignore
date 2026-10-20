@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+*.zip
 
 # debug
 npm-debug.log*
@@ -38,9 +39,6 @@ scratch/
 
 # vercel
 .vercel
-
-# local user store
-.system_user_store.json
 
 # typescript
 *.tsbuildinfo

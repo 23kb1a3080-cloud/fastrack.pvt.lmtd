@@ -12,14 +12,14 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">1. Introduction</h2>
           <p className="text-[#000000]/80">
-            Welcome to <strong>Capstonia</strong>. By accessing our platform and purchasing engineering project deliverables, source code packages, documentation, or custom orders, you agree to comply with and be bound by the following terms and conditions.
+            Welcome to <strong>fastrackprojects</strong>. By accessing our platform and purchasing engineering project deliverables, source code packages, documentation, or custom orders, you agree to comply with and be bound by the following terms and conditions.
           </p>
         </section>
 
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">2. Product Usage & License</h2>
           <p className="text-[#000000]/80">
-            All project deliverables provided on Capstonia—including source code, IEEE reports (.docx/PDF), viva presentation slides (.pptx), and comprehensive execution manuals—are licensed strictly for personal educational and academic reference purposes.
+            All project deliverables provided on fastrackprojects—including source code, IEEE reports (.docx/PDF), viva presentation slides (.pptx), and execution video demos—are licensed strictly for personal educational and academic reference purposes.
           </p>
         </section>
 

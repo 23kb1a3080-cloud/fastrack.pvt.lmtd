@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">1. Information We Collect</h2>
           <p className="text-[#000000]/80">
-            When you purchase a project or submit a custom project request on Capstonia, we collect minimal necessary information including your name, email address, phone number (for WhatsApp updates), and payment transaction metadata.
+            When you purchase a project or submit a custom project request on fastrackprojects, we collect minimal necessary information including your name, email address, phone number (for WhatsApp updates), and payment transaction metadata.
           </p>
         </section>
 
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="text-base font-extrabold text-[#000000]">4. Data Protection & Sharing</h2>
           <p className="text-[#000000]/80">
-            Capstonia does not sell, trade, or rent user personal data to any third-party marketing companies.
+            fastrackprojects does not sell, trade, or rent user personal data to any third-party marketing companies.
           </p>
         </section>
 

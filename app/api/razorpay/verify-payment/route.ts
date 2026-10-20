@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { connectToDatabase } from '@/lib/mongodb';
-import { OrderModel } from '@/lib/models/Order';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +11,6 @@ export async function POST(req: Request) {
       projectId,
       buyerEmail,
       buyerPhone,
-      packageTier,
     } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
@@ -32,31 +30,42 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert or update Order in MongoDB Compass
-    const normalizedEmail = (buyerEmail || 'student@example.com').toLowerCase().trim();
     try {
-      await connectToDatabase();
-      await OrderModel.findOneAndUpdate(
-        { razorpay_order_id },
-        {
-          project_id: projectId,
-          razorpay_order_id,
-          razorpay_payment_id,
-          razorpay_signature,
-          status: 'paid',
-          buyer_email: normalizedEmail,
-          buyer_phone: buyerPhone || '',
-          package_tier: packageTier || 'Standard',
-        },
-        { upsert: true, returnDocument: 'after' }
-      );
-    } catch (dbErr) {
-      console.error('MongoDB order update error:', dbErr);
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Securely fetch project price
+      const { data: project } = await supabase
+        .from('projects')
+        .select('price_inr, discounted_price_inr')
+        .eq('id', projectId)
+        .single();
+
+      const amount = project?.discounted_price_inr || project?.price_inr || 0;
+
+      const { error: insertError } = await supabase.from('orders').insert({
+        order_number: `ORD-${Math.floor(Math.random() * 1000000)}`,
+        user_id: user?.id || null,
+        student_name: buyerEmail?.split('@')[0] || user?.email?.split('@')[0] || 'Student',
+        student_email: buyerEmail || user?.email || 'buyer@example.com',
+        student_phone: buyerPhone || '',
+        project_id: projectId,
+        amount_inr: amount,
+        status: 'COMPLETED',
+        razorpay_payment_id,
+        razorpay_order_id,
+      });
+
+      if (insertError) {
+        console.error('Failed to save order to database:', insertError);
+      }
+    } catch (dbError) {
+      console.error('Database Error:', dbError);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Payment verified successfully and saved in MongoDB',
+      message: 'Payment verified successfully',
       orderId: razorpay_order_id,
     });
   } catch (error: any) {

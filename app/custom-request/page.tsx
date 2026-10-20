@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { BRANCHES } from '@/lib/constants';
 import { Sparkles, CheckCircle2, Send, Clock, ShieldCheck, Code2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CustomRequestPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     studentName: '',
     email: '',
@@ -21,17 +24,39 @@ export default function CustomRequestPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
     try {
-      await fetch('/api/custom-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-    } catch (err) {
-      console.error('Failed to submit to MongoDB:', err);
+      const supabase = createClient();
+      const { error: insertError } = await supabase
+        .from('custom_requests')
+        .insert({
+          student_name: formData.studentName,
+          email: formData.email,
+          phone: formData.phone,
+          branch: formData.branch,
+          category: formData.category,
+          project_title: formData.projectTitle,
+          tech_stack: formData.techStack || null,
+          description: formData.description || null,
+          deadline: formData.deadline || null,
+          budget: formData.budget || null,
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
     }
-    setSubmitted(true);
   };
+
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-[#000000]">
@@ -228,18 +253,25 @@ export default function CustomRequestPage() {
                   type="text"
                   value={formData.budget}
                   onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                  placeholder="e.g. ₹3,500 - ₹5,000"
+                  placeholder="e.g. Starting from ₹3,000"
                   className="w-full px-3.5 py-2.5 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs font-bold text-[#000000] focus:outline-none focus:border-[#000000]"
                 />
               </div>
             </div>
 
+            {error && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
+                ❌ {error}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full py-3.5 rounded-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4"
+              disabled={isSubmitting}
+              className="w-full py-3.5 rounded-full bg-[#000000] hover:bg-[#1a1a1a] text-[#FFFFFF] font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="h-4 w-4" />
-              <span>Submit Custom Project Order</span>
+              <span>{isSubmitting ? 'Submitting...' : 'Submit Custom Project Order'}</span>
             </button>
           </form>
 
@@ -262,7 +294,7 @@ export default function CustomRequestPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />
-                  <span><strong>Installation & Run Manual:</strong> Step-by-step setup documentation for local execution.</span>
+                  <span><strong>Video Installation Guide:</strong> Step-by-step setup video for local execution.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#000000] shrink-0 mt-0.5" />

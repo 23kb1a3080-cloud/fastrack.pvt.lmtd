@@ -1,22 +1,50 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { DEMO_PROJECTS, BRANCHES } from '@/lib/constants';
-import { EngineeringBranch } from '@/lib/types';
+import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
+import { EngineeringBranch, Project } from '@/lib/types';
 import ProjectCard from '@/components/catalog/project-card';
-import { Search, SlidersHorizontal, RotateCcw, Filter, ArrowUpDown } from 'lucide-react';
+import { normalizeProjects } from '@/lib/utils/project';
+import { Search, SlidersHorizontal, RotateCcw, Filter, ArrowUpDown, Flame, Sparkles } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 function CatalogContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+  const initialPrice = searchParams.get('price') || 'ALL';
 
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedBranches, setSelectedBranches] = useState<EngineeringBranch[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [priceRange, setPriceRange] = useState<string>('ALL');
+  const [priceRange, setPriceRange] = useState<string>(
+    initialPrice === '3000' || initialPrice === 'STARTS_3000' ? 'STARTS_3000' : initialPrice
+  );
   const [sortBy, setSortBy] = useState<string>('featured');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    const p = searchParams.get('price');
+    if (p === '3000' || p === 'STARTS_3000') {
+      setPriceRange('STARTS_3000');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('projects').select('*').eq('is_published', true);
+      if (data && data.length > 0) {
+        setProjects(normalizeProjects(data as Project[]));
+      } else {
+        setProjects(normalizeProjects(DEMO_PROJECTS));
+      }
+      setLoading(false);
+    };
+    fetchProjects();
+  }, []);
 
   const toggleBranch = (branchId: EngineeringBranch) => {
     setSelectedBranches((prev) =>
@@ -32,8 +60,12 @@ function CatalogContent() {
     setSortBy('featured');
   };
 
+  const starting3000Count = useMemo(() => {
+    return projects.filter((p) => (p.discounted_price_inr || p.price_inr) === 3000).length;
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    return DEMO_PROJECTS.filter((project) => {
+    return projects.filter((project) => {
       const matchesSearch =
         searchQuery === '' ||
         project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,9 +80,9 @@ function CatalogContent() {
 
       const price = project.discounted_price_inr || project.price_inr;
       let matchesPrice = true;
-      if (priceRange === 'UNDER_4000') matchesPrice = price < 4000;
-      if (priceRange === '4000_4500') matchesPrice = price >= 4000 && price <= 4500;
-      if (priceRange === 'ABOVE_4500') matchesPrice = price > 4500;
+      if (priceRange === 'STARTS_3000') matchesPrice = price === 3000;
+      if (priceRange === '3000_4000') matchesPrice = price >= 3000 && price <= 4000;
+      if (priceRange === 'ABOVE_4000') matchesPrice = price > 4000;
 
       return matchesSearch && matchesBranch && matchesCategory && matchesPrice;
     }).sort((a, b) => {
@@ -60,7 +92,7 @@ function CatalogContent() {
       if (sortBy === 'price_desc') return priceB - priceA;
       return 0;
     });
-  }, [searchQuery, selectedBranches, selectedCategory, priceRange, sortBy]);
+  }, [projects, searchQuery, selectedBranches, selectedCategory, priceRange, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-[#ECE4DA] text-[#000000]">
@@ -189,9 +221,14 @@ function CatalogContent() {
 
           {/* Price Range Filter */}
           <div className="space-y-3 pt-4 border-t border-[#D8CEBE]">
-            <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
-              Price Filter (₹)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
+                Price Filter (₹)
+              </label>
+              <span className="text-[10px] font-black text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                Starts @ ₹3,000
+              </span>
+            </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
@@ -203,35 +240,41 @@ function CatalogContent() {
                 />
                 <span>All Prices</span>
               </label>
-              <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-[#000000] font-black cursor-pointer bg-amber-400/20 p-2 rounded-xl border border-amber-400/50">
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === 'UNDER_4000'}
-                  onChange={() => setPriceRange('UNDER_4000')}
-                  className="text-[#000000] focus:ring-[#000000] h-4 w-4"
+                  checked={priceRange === 'STARTS_3000'}
+                  onChange={() => setPriceRange('STARTS_3000')}
+                  className="text-amber-600 focus:ring-amber-500 h-4 w-4"
                 />
-                <span>Under ₹4,000</span>
+                <span className="flex items-center gap-1 text-black font-black">
+                  <Flame className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
+                  Starting @ ₹3,000 Deals
+                </span>
+                <span className="ml-auto text-[10px] font-black bg-amber-400 text-black px-1.5 py-0.5 rounded-md">
+                  {starting3000Count}
+                </span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === '4000_4500'}
-                  onChange={() => setPriceRange('4000_4500')}
+                  checked={priceRange === '3000_4000'}
+                  onChange={() => setPriceRange('3000_4000')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>₹4,000 - ₹4,500</span>
+                <span>₹3,000 – ₹4,000</span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
                   type="radio"
                   name="price"
-                  checked={priceRange === 'ABOVE_4500'}
-                  onChange={() => setPriceRange('ABOVE_4500')}
+                  checked={priceRange === 'ABOVE_4000'}
+                  onChange={() => setPriceRange('ABOVE_4000')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>Above ₹4,500</span>
+                <span>Above ₹4,000</span>
               </label>
             </div>
           </div>
@@ -239,6 +282,65 @@ function CatalogContent() {
 
         {/* Right Catalog Area */}
         <main className="lg:col-span-3 space-y-6">
+          {/* Quick Filter Pill Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setPriceRange(priceRange === 'STARTS_3000' ? 'ALL' : 'STARTS_3000')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 shadow-xs ${
+                priceRange === 'STARTS_3000'
+                  ? 'bg-amber-500 text-black border-2 border-amber-600 ring-2 ring-amber-400/50'
+                  : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+              }`}
+            >
+              <Flame className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
+              <span>Starting @ ₹3,000 Deals ({starting3000Count})</span>
+            </button>
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === 'MAJOR_FINAL_YEAR' ? 'ALL' : 'MAJOR_FINAL_YEAR')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                selectedCategory === 'MAJOR_FINAL_YEAR'
+                  ? 'bg-[#000000] text-[#FFFFFF] border-black'
+                  : 'bg-[#FAF6F0] text-[#000000] border-[#D8CEBE] hover:bg-[#ECE4DA]'
+              }`}
+            >
+              Major Final Year
+            </button>
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === 'MINI_PROJECT' ? 'ALL' : 'MINI_PROJECT')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                selectedCategory === 'MINI_PROJECT'
+                  ? 'bg-[#000000] text-[#FFFFFF] border-black'
+                  : 'bg-[#FAF6F0] text-[#000000] border-[#D8CEBE] hover:bg-[#ECE4DA]'
+              }`}
+            >
+              Mini Projects
+            </button>
+          </div>
+
+          {/* Highlight Banner when filtering by Starting 3000 */}
+          {priceRange === 'STARTS_3000' && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-400/25 via-amber-200/40 to-amber-100/30 border-2 border-amber-500 shadow-xs flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-400 text-black shrink-0">
+                  <Sparkles className="h-4 w-4 fill-black" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-black">
+                    Showing Projects Starting From ₹3,000
+                  </h4>
+                  <p className="text-[11px] text-black/80 font-medium">
+                    Verified university deliverable packages including source code, IEEE report, and PPT slides for ₹3,000.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPriceRange('ALL')}
+                className="px-3 py-1 rounded-full bg-black text-white text-[11px] font-bold hover:bg-neutral-800 shrink-0"
+              >
+                Clear Filter
+              </button>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CEBE] shadow-xs">
             <span className="text-xs font-bold text-[#000000]">
               Showing <span className="font-extrabold">{filteredProjects.length}</span> Engineering Projects

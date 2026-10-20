@@ -29,13 +29,13 @@ export default function Footer() {
             <ShieldCheck className="h-7 w-7 text-[#000000] shrink-0" />
             <div>
               <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">100% Tested & Verified</h4>
-              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">Guaranteed working execution manual</p>
+              <p className="text-xs text-[#000000]/80 mt-0.5 font-medium">Guaranteed execution video demo</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#ECE4DA] border border-[#D8CEBE]">
             <div className="h-7 w-7 relative shrink-0">
-              <Image src="/images/logo.png" alt="Logo" fill className="object-contain rounded-lg" />
+              <Image src="/images/logo.jpg" alt="Logo" fill className="object-contain rounded-lg" />
             </div>
             <div>
               <h4 className="text-[#000000] text-xs font-extrabold uppercase tracking-wider">Razorpay Secure UPI</h4>
@@ -50,20 +50,20 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <div className="h-9 w-9 rounded-xl bg-[#000000] p-1 flex items-center justify-center shrink-0 border border-[#D8CEBE]">
                 <Image
-                  src="/images/logo.png"
-                  alt="Capstonia logo"
+                  src="/images/logo.jpg"
+                  alt="fastrackprojects logo"
                   width={28}
                   height={28}
                   className="object-contain rounded-lg"
                 />
               </div>
-              <span className="text-lg font-extrabold text-[#000000]">Capstonia</span>
+              <span className="text-lg font-extrabold text-[#000000]">fastrackprojects</span>
             </div>
             <p className="text-xs text-[#000000]/90 leading-relaxed max-w-sm font-medium">
               India&apos;s premier engineering project store for B.Tech, B.E., and Diploma students. Complete tested deliverables with source code, IEEE reports, PPTs, and setup guides.
             </p>
             <div className="text-xs text-[#000000]/60 font-medium">
-              © 2026 Capstonia. All rights reserved.
+              © 2026 fastrackprojects. All rights reserved.
             </div>
           </div>
 
@@ -91,7 +91,7 @@ export default function Footer() {
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> IEEE Word (.docx)</li>
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Report PDF</li>
               <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Viva PPT (.pptx)</li>
-              <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Setup & Run Guide</li>
+              <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#000000]" /> Video Demo</li>
             </ul>
           </div>
 
@@ -106,16 +106,6 @@ export default function Footer() {
               <li><Link href="/terms" className="hover:opacity-70">Terms & Conditions</Link></li>
               <li><Link href="/privacy" className="hover:opacity-70">Privacy Policy</Link></li>
               <li><Link href="/login" className="hover:opacity-70">Sign In / Register</Link></li>
-              <li className="pt-1">
-                <a
-                  href="https://wa.me/917382324346?text=Hi%20Capstonia%20Projects!%20I%20am%20interested%20in%20an%20engineering%20project%20package.%20Please%20share%20details%20and%20guidance."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-800 font-black hover:text-emerald-950 flex items-center gap-1"
-                >
-                  <span>💬 WhatsApp: +91 73823 24346</span>
-                </a>
-              </li>
             </ul>
           </div>
         </div>

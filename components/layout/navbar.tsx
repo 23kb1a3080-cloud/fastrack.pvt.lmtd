@@ -12,34 +12,17 @@ export default function Navbar() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
+    const checkUser = () => {
+      const stored = localStorage.getItem('fastrack_user');
       if (stored) {
         try {
           setUser(JSON.parse(stored));
-          return;
         } catch {
-          // continue to API check
+          setUser(null);
         }
+      } else {
+        setUser(null);
       }
-
-      // Fallback check session cookie via API
-      try {
-        const res = await fetch('/api/auth/me');
-        const data = await res.json();
-        if (data.authenticated && data.user) {
-          const u = {
-            name: data.user.full_name || data.user.name,
-            email: data.user.email,
-            role: data.user.role === 'admin' ? 'ADMIN' : 'STUDENT',
-          };
-          setUser(u);
-          localStorage.setItem('capstonia_user', JSON.stringify(u));
-          return;
-        }
-      } catch (_) {}
-
-      setUser(null);
     };
 
     checkUser();
@@ -52,12 +35,8 @@ export default function Navbar() {
     };
   }, []);
 
-  const handleSignOut = async () => {
-    localStorage.removeItem('capstonia_user');
+  const handleSignOut = () => {
     localStorage.removeItem('fastrack_user');
-    try {
-      await fetch('/api/auth/me', { method: 'DELETE' });
-    } catch (_) {}
     setUser(null);
     setUserDropdownOpen(false);
     window.dispatchEvent(new Event('authChange'));
@@ -65,16 +44,33 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-[#ECE4DA]/95 backdrop-blur-md border-b border-[#D8CEBE] shadow-xs">
+      {/* Starting from ₹3,000 Top Announcement Bar */}
+      <div className="bg-gradient-to-r from-neutral-950 via-amber-950 to-neutral-950 text-white text-[11px] sm:text-xs py-2 px-4 text-center font-bold border-b border-amber-500/30 flex items-center justify-center gap-2 flex-wrap">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-black tracking-wider uppercase">
+          Special Deal
+        </span>
+        <span className="text-amber-100 font-medium">
+          Engineering Projects starting from just <strong className="text-amber-400 font-extrabold underline decoration-amber-400">₹3,000</strong> — Verified Code, IEEE Report & PPT Included!
+        </span>
+        <Link
+          href="/projects?price=STARTS_3000"
+          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-[11px] shadow-xs transition-colors ml-1"
+        >
+          <span>View ₹3,000 Projects</span>
+          <span>→</span>
+        </Link>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="h-11 w-11 rounded-2xl bg-[#000000] p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs overflow-hidden border border-[#D8CEBE]">
               <Image
-                src="/images/logo.png"
-                alt="Capstonia logo"
-                width={38}
-                height={38}
+                src="/images/logo.jpg"
+                alt="fastrackprojects logo"
+                width={36}
+                height={36}
                 className="object-contain rounded-xl"
               />
             </div>
@@ -82,7 +78,7 @@ export default function Navbar() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-extrabold tracking-tight text-[#000000]">
-                  Capston<span className="opacity-75">ia</span>
+                  fastrack<span className="opacity-75">projects</span>
                 </span>
                 <span className="hidden sm:inline-flex text-[10px] font-bold text-[#000000] bg-[#E5DCCF] px-2 py-0.5 rounded-full border border-[#D8CEBE]">
                   STORE

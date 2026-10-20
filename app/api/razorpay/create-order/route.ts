@@ -1,39 +1,35 @@
 import { NextResponse } from 'next/server';
 import { getRazorpayClient } from '@/lib/razorpay/razorpay-client';
 import { DEMO_PROJECTS } from '@/lib/constants';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ProjectModel } from '@/lib/models/Project';
-import { OrderModel } from '@/lib/models/Order';
+import { normalizeProject } from '@/lib/utils/project';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
-    const { projectId, buyerEmail, buyerPhone, packageTier, amountInr } = await req.json();
+    const { projectId, buyerEmail, buyerPhone } = await req.json();
 
     if (!projectId) {
       return NextResponse.json({ error: 'Missing projectId' }, { status: 400 });
     }
 
-    let project: any = null;
-    try {
-      await connectToDatabase();
-      const conditions: any[] = [{ slug: projectId }];
-      if (typeof projectId === 'string' && /^[0-9a-fA-F]{24}$/.test(projectId)) {
-        conditions.push({ _id: projectId });
-      }
-      project = await ProjectModel.findOne({ $or: conditions }).lean();
-    } catch (e) {
-      console.warn('MongoDB project lookup failed, falling back to DEMO_PROJECTS:', e);
+    const supabase = await createClient();
+    const { data: project } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+
+    let projectToUse = project;
+    if (!projectToUse) {
+      projectToUse = DEMO_PROJECTS.find((p) => p.id === projectId);
     }
 
-    if (!project) {
-      project = DEMO_PROJECTS.find((p) => p.id === projectId || p.slug === projectId);
-    }
-
-    if (!project) {
+    if (!projectToUse) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    const priceInr = amountInr ? Number(amountInr) : (project.discounted_price_inr || project.price_inr);
+    const normalized = normalizeProject(projectToUse);
+    const priceInr = normalized.discounted_price_inr || normalized.price_inr;
     const priceInPaisa = Math.round(priceInr * 100);
 
     const razorpay = getRazorpayClient();
@@ -42,31 +38,14 @@ export async function POST(req: Request) {
       currency: 'INR',
       receipt: `rcpt_${Date.now().toString().slice(-8)}`,
       notes: {
-        projectId: project.id || (project._id ? project._id.toString() : ''),
+        projectId: project.id,
         projectTitle: project.title,
-        packageTier: packageTier || 'Standard',
         buyerEmail: buyerEmail || '',
         buyerPhone: buyerPhone || '',
       },
     };
 
     const razorpayOrder = await razorpay.orders.create(orderOptions);
-
-    // Record pending order in MongoDB
-    try {
-      await connectToDatabase();
-      await OrderModel.create({
-        project_id: project.id || (project._id ? project._id.toString() : projectId),
-        amount_inr: priceInr,
-        razorpay_order_id: razorpayOrder.id,
-        status: 'pending',
-        buyer_email: (buyerEmail || 'student@example.com').toLowerCase().trim(),
-        buyer_phone: buyerPhone || '',
-        package_tier: packageTier || 'Standard',
-      });
-    } catch (dbErr) {
-      console.warn('Could not record pending order in MongoDB:', dbErr);
-    }
 
     return NextResponse.json({
       success: true,
