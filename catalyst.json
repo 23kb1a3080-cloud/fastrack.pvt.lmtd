@@ -1,9 +1,8 @@
 {
   "appsail": [
     {
-      "name": "fastrack-store",
-      "source": ".",
-      "build_path": "."
+      "name": "capstonia",
+      "source": ".next/standalone"
     }
   ]
 }
