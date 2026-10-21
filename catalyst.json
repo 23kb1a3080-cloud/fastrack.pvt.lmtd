@@ -1,0 +1,9 @@
+{
+  "appsail": [
+    {
+      "name": "fastrack-store",
+      "source": ".",
+      "build_path": "."
+    }
+  ]
+}
