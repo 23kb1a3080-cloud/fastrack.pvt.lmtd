@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import { ShoppingBag, Shield, Menu, X, ChevronDown, Sparkles, User, LogIn, LogOut } from 'lucide-react';
 import { BRANCHES } from '@/lib/constants';
 
+import { createClient } from '@/lib/supabase/client';
+
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
@@ -35,7 +37,16 @@ export default function Navbar() {
     };
   }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' }),
+      });
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {}
     localStorage.removeItem('capstonia_user');
     localStorage.removeItem('fastrack_user');
     setUser(null);

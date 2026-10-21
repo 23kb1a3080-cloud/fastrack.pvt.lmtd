@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Admin Lead",
+    "email": "admin@gmail.com",
+    "phone": "7382324346",
+    "branch": "CSE",
+    "role": "ADMIN",
+    "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "createdAt": "2026-10-21T10:59:37.337Z"
+  },
+  {
+    "name": "Admin Lead",
+    "email": "admin@capstonia.com",
+    "phone": "7382324346",
+    "branch": "CSE",
+    "role": "ADMIN",
+    "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "lastLogin": "2026-10-21T10:59:56.564Z"
+  },
+  {
+    "name": "Rahul Sharma",
+    "email": "student@college.edu",
+    "phone": "9876543210",
+    "branch": "CSE",
+    "role": "STUDENT",
+    "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    "lastLogin": "2026-10-21T11:01:07.725Z"
+  },
+  {
+    "name": "PULIKONDA SRINIVAS NBKRIST",
+    "email": "23kb1a3080@nbkrist.org",
+    "phone": "894y3895985",
+    "branch": "CSE",
+    "role": "STUDENT",
+    "passwordHash": "da3c2e55cad1fc76658530d2f6b236ded75604b10249181f1351e8ee885a5ed6",
+    "createdAt": "2026-10-21T11:03:36.702Z"
+  }
+]

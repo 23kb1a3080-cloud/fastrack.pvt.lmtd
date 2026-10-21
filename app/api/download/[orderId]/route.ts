@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getServerUser } from '@/lib/supabase/server';
 
 export async function GET(
   req: Request,
@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { orderId } = await params;
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getServerUser();
 
     // 1. Fetch order details from Supabase DB
     const { data: order } = await supabase

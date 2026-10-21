@@ -37,3 +37,30 @@ export async function createClient() {
     },
   });
 }
+
+export async function getServerUser() {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) {
+      return {
+        id: data.user.id,
+        email: data.user.email || '',
+        name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'Student',
+        role: data.user.user_metadata?.role || (data.user.email?.includes('admin') ? 'ADMIN' : 'STUDENT'),
+        branch: data.user.user_metadata?.branch || 'CSE',
+        phone: data.user.user_metadata?.phone || '',
+      };
+    }
+  } catch {}
+
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('capstonia_session')?.value;
+    if (sessionCookie) {
+      return JSON.parse(decodeURIComponent(sessionCookie));
+    }
+  } catch {}
+
+  return null;
+}

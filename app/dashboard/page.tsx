@@ -13,8 +13,16 @@ function BuyerDashboardContent() {
   const orderId = searchParams.get('orderId') || 'ORD-89412';
 
   const [purchasedProjects, setPurchasedProjects] = useState<Project[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; branch?: string } | null>(null);
   
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem('capstonia_user') || localStorage.getItem('fastrack_user');
+      if (stored) {
+        setCurrentUser(JSON.parse(stored));
+      }
+    } catch {}
+
     const fetchPurchased = async () => {
       const supabase = createClient();
       const { data } = await supabase.from('projects').select('*').limit(2);
@@ -46,8 +54,19 @@ function BuyerDashboardContent() {
       {/* Dashboard Title */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Student Dashboard</h1>
-          <p className="text-sm text-slate-600 mt-1">Access your purchased project files, reports, and presentation decks.</p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-extrabold text-slate-900">
+              {currentUser?.name ? `${currentUser.name}'s Dashboard` : 'Student Dashboard'}
+            </h1>
+            {currentUser?.branch && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-slate-200 text-slate-800 border border-slate-300">
+                {currentUser.branch}
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-slate-600 mt-1">
+            Welcome back, <strong>{currentUser?.name || 'Student'}</strong>! Access your purchased project files, reports, and presentation decks.
+          </p>
         </div>
       </div>
 

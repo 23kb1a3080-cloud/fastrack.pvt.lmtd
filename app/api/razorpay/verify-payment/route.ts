@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getServerUser } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     try {
       const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getServerUser();
 
       // Securely fetch project price
       const { data: project } = await supabase
