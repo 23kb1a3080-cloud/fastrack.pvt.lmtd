@@ -46,3 +46,4 @@ next-env.d.ts
 
 # catalyst
 .catalystrc
+catalyst-debug.log
