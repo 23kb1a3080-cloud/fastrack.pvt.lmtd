@@ -59,30 +59,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Project dynamic routes
-  let projectRoutes: MetadataRoute.Sitemap = [];
+  const projectMap = new Map<string, { lastModified: Date; priority: number }>();
+
+  DEMO_PROJECTS.forEach((p) => {
+    if (p.slug) {
+      projectMap.set(p.slug, {
+        lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+        priority: 0.85,
+      });
+    }
+  });
+
   try {
     const supabase = createAdminClient();
     const { data: projects, error } = await supabase.from('projects').select('slug, updated_at');
-    if (!error && projects && projects.length > 0) {
-      projectRoutes = projects.map((p) => ({
-        url: `${baseUrl}/projects/${p.slug}`,
-        lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.85,
-      }));
+    if (!error && projects) {
+      projects.forEach((p) => {
+        if (p.slug) {
+          projectMap.set(p.slug, {
+            lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+            priority: 0.85,
+          });
+        }
+      });
     }
   } catch (err) {
     console.warn('sitemap database error:', err);
   }
 
-  if (projectRoutes.length === 0) {
-    projectRoutes = DEMO_PROJECTS.map((p) => ({
-      url: `${baseUrl}/projects/${p.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.85,
-    }));
-  }
+  const projectRoutes: MetadataRoute.Sitemap = Array.from(projectMap.entries()).map(([slug, meta]) => ({
+    url: `${baseUrl}/projects/${slug}`,
+    lastModified: meta.lastModified,
+    changeFrequency: 'weekly',
+    priority: meta.priority,
+  }));
 
   return [...staticRoutes, ...branchRoutes, ...projectRoutes];
 }

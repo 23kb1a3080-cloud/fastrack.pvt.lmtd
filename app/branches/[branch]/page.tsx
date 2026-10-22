@@ -32,11 +32,11 @@ export default async function BranchPage({
   let branchProjects: any[] = [];
   try {
     const { data } = await supabase.from('projects').select('*').eq('branch', branchUpper).eq('is_published', true);
-    if (data && data.length > 0) {
-      branchProjects = normalizeProjects(data);
-    } else {
-      branchProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => p.branch === branchUpper);
-    }
+    const dbProjects = data && data.length > 0 ? normalizeProjects(data) : [];
+    const dbSlugs = new Set(dbProjects.map((p) => p.slug));
+    const demoBranchProjects = normalizeProjects(DEMO_PROJECTS)
+      .filter((p) => p.branch === branchUpper && !dbSlugs.has(p.slug));
+    branchProjects = [...dbProjects, ...demoBranchProjects];
   } catch (err) {
     console.warn('Failed to load branch projects:', err);
     branchProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => p.branch === branchUpper);

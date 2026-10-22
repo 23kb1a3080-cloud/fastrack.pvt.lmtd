@@ -15,21 +15,25 @@ import {
 } from 'lucide-react';
 
 export async function generateStaticParams() {
+  const slugs = new Set<string>();
   try {
     const supabase = createAdminClient();
     const { data: projects, error } = await supabase.from('projects').select('slug');
-    if (!error && projects && projects.length > 0) {
-      return projects.map((project) => ({
-        slug: project.slug,
-      }));
+    if (!error && projects) {
+      projects.forEach((project) => {
+        if (project.slug) slugs.add(project.slug);
+      });
     }
   } catch (error) {
     console.warn('generateStaticParams error:', error);
   }
 
-  // Ensure generateStaticParams always returns at least one item (required by Next.js Cache Components)
-  return DEMO_PROJECTS.map((project) => ({
-    slug: project.slug,
+  DEMO_PROJECTS.forEach((project) => {
+    if (project.slug) slugs.add(project.slug);
+  });
+
+  return Array.from(slugs).map((slug) => ({
+    slug,
   }));
 }
 

@@ -23,11 +23,15 @@ function CatalogContent() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.from('projects').select('*').eq('is_published', true);
-      if (data && data.length > 0) {
-        setProjects(normalizeProjects(data as Project[]));
-      } else {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.from('projects').select('*').eq('is_published', true);
+        const dbProjects = data && data.length > 0 ? normalizeProjects(data as Project[]) : [];
+        const dbSlugs = new Set(dbProjects.map((p) => p.slug));
+        const fallbackProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => !dbSlugs.has(p.slug));
+        setProjects([...dbProjects, ...fallbackProjects]);
+      } catch (err) {
+        console.warn('Failed to load database projects, using demo catalog:', err);
         setProjects(normalizeProjects(DEMO_PROJECTS));
       }
       setLoading(false);

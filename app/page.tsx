@@ -18,11 +18,10 @@ export default async function HomePage() {
       .from('projects')
       .select('*')
       .eq('is_published', true);
-    if (data && data.length > 0) {
-      allPublished = normalizeProjects(data);
-    } else {
-      allPublished = normalizeProjects(DEMO_PROJECTS);
-    }
+    const dbProjects = data && data.length > 0 ? normalizeProjects(data) : [];
+    const dbSlugs = new Set(dbProjects.map((p) => p.slug));
+    const fallbackProjects = normalizeProjects(DEMO_PROJECTS).filter((p) => !dbSlugs.has(p.slug));
+    allPublished = [...dbProjects, ...fallbackProjects];
   } catch (error) {
     console.warn('Failed to load projects:', error);
     allPublished = normalizeProjects(DEMO_PROJECTS);
