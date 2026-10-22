@@ -12,9 +12,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://capstonia.qd.je'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://capstonia.qd.je'),
   title: 'Capstonia — Verified Engineering Projects Store',
   description: 'Buy complete B.Tech, B.E., and Diploma engineering projects for CSE, IT, AI&DS, AIML, & CSE (Data Science). Includes tested source code, IEEE reports, PPTs, & step-by-step setup guides.',
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'PF-zrsKVlBaRpYMTe1qeDXI9UxWVvVLPxhddVd-xG0E',
+  },
 };
 
 export default function RootLayout({
