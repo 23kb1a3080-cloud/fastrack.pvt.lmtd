@@ -6,31 +6,20 @@ import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
 import { EngineeringBranch, Project } from '@/lib/types';
 import ProjectCard from '@/components/catalog/project-card';
 import { normalizeProjects } from '@/lib/utils/project';
-import { Search, SlidersHorizontal, RotateCcw, Filter, ArrowUpDown, Flame, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw, Filter, ArrowUpDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 function CatalogContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
-  const initialPrice = searchParams.get('price') || 'ALL';
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedBranches, setSelectedBranches] = useState<EngineeringBranch[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [priceRange, setPriceRange] = useState<string>(
-    initialPrice === '3000' || initialPrice === 'STARTS_3000' ? 'STARTS_3000' : initialPrice
-  );
   const [sortBy, setSortBy] = useState<string>('featured');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  useEffect(() => {
-    const p = searchParams.get('price');
-    if (p === '3000' || p === 'STARTS_3000') {
-      setPriceRange('STARTS_3000');
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -56,13 +45,8 @@ function CatalogContent() {
     setSearchQuery('');
     setSelectedBranches([]);
     setSelectedCategory('ALL');
-    setPriceRange('ALL');
     setSortBy('featured');
   };
-
-  const starting3000Count = useMemo(() => {
-    return projects.filter((p) => (p.discounted_price_inr || p.price_inr) === 3000).length;
-  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -78,21 +62,13 @@ function CatalogContent() {
       const matchesCategory =
         selectedCategory === 'ALL' || project.category === selectedCategory;
 
-      const price = project.discounted_price_inr || project.price_inr;
-      let matchesPrice = true;
-      if (priceRange === 'STARTS_3000') matchesPrice = price === 3000;
-      if (priceRange === '3000_4000') matchesPrice = price >= 3000 && price <= 4000;
-      if (priceRange === 'ABOVE_4000') matchesPrice = price > 4000;
-
-      return matchesSearch && matchesBranch && matchesCategory && matchesPrice;
+      return matchesSearch && matchesBranch && matchesCategory;
     }).sort((a, b) => {
-      const priceA = a.discounted_price_inr || a.price_inr;
-      const priceB = b.discounted_price_inr || b.price_inr;
-      if (sortBy === 'price_asc') return priceA - priceB;
-      if (sortBy === 'price_desc') return priceB - priceA;
+      if (sortBy === 'title_asc') return a.title.localeCompare(b.title);
+      if (sortBy === 'title_desc') return b.title.localeCompare(a.title);
       return 0;
     });
-  }, [projects, searchQuery, selectedBranches, selectedCategory, priceRange, sortBy]);
+  }, [projects, searchQuery, selectedBranches, selectedCategory, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-[#ECE4DA] text-[#000000]">
@@ -130,7 +106,7 @@ function CatalogContent() {
             </h3>
             <button
               onClick={resetFilters}
-              className="text-xs font-bold text-[#000000] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#000000] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
@@ -139,51 +115,53 @@ function CatalogContent() {
           {/* Search Box */}
           <div className="space-y-2">
             <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
-              Search Keyword
+              Search by Keyword
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#000000]/50" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#000000]/40 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Topic or tech..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs text-[#000000] font-bold focus:outline-none focus:border-[#000000]"
+                placeholder="Topic, tech, branch..."
+                className="w-full pl-9 pr-3 py-2 bg-[#ECE4DA] border border-[#D8CEBE] rounded-xl text-xs font-bold text-[#000000] placeholder-[#000000]/40 focus:outline-none focus:border-[#000000]"
               />
             </div>
           </div>
 
-          {/* Department Checkboxes */}
-          <div className="space-y-3 pt-2 border-t border-[#D8CEBE]">
+          {/* Branch Filter */}
+          <div className="space-y-3 pt-4 border-t border-[#D8CEBE]">
             <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
-              Engineering Branch
+              Department
             </label>
             <div className="space-y-2">
-              {BRANCHES.map((b) => {
-                const checked = selectedBranches.includes(b.id);
+              {BRANCHES.map((branch) => {
+                const count = projects.filter((p) => p.branch === branch.id).length;
                 return (
                   <label
-                    key={b.id}
-                    className="flex items-center gap-2.5 text-xs text-[#000000] font-bold cursor-pointer"
+                    key={branch.id}
+                    className="flex items-center justify-between text-xs text-[#000000] font-bold cursor-pointer hover:opacity-80"
                   >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleBranch(b.id)}
-                      className="rounded border-[#D8CEBE] text-[#000000] focus:ring-[#000000] h-4 w-4"
-                    />
-                    <span>{b.name}</span>
-                    <span className="text-[10px] text-[#000000]/60 ml-auto font-semibold">{b.fullName.split(' ')[0]}</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedBranches.includes(branch.id)}
+                        onChange={() => toggleBranch(branch.id)}
+                        className="rounded border-[#D8CEBE] text-[#000000] focus:ring-[#000000] h-4 w-4"
+                      />
+                      <span>{branch.name}</span>
+                    </div>
+                    <span className="text-[11px] text-[#000000]/60 font-semibold">{count}</span>
                   </label>
                 );
               })}
             </div>
           </div>
 
-          {/* Project Type */}
+          {/* Category Filter */}
           <div className="space-y-3 pt-4 border-t border-[#D8CEBE]">
             <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
-              Project Category
+              Project Type
             </label>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
@@ -194,7 +172,7 @@ function CatalogContent() {
                   onChange={() => setSelectedCategory('ALL')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>All Categories</span>
+                <span>All Projects</span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
@@ -204,7 +182,7 @@ function CatalogContent() {
                   onChange={() => setSelectedCategory('MAJOR_FINAL_YEAR')}
                   className="text-[#000000] focus:ring-[#000000] h-4 w-4"
                 />
-                <span>Major Final Year</span>
+                <span>Major Final Year Projects</span>
               </label>
               <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
                 <input
@@ -218,66 +196,6 @@ function CatalogContent() {
               </label>
             </div>
           </div>
-
-          {/* Price Range Filter */}
-          <div className="space-y-3 pt-4 border-t border-[#D8CEBE]">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-extrabold text-[#000000]/70 uppercase tracking-wider block">
-                Price Filter (₹)
-              </label>
-              <span className="text-[10px] font-black text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
-                Starts @ ₹3,000
-              </span>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
-                <input
-                  type="radio"
-                  name="price"
-                  checked={priceRange === 'ALL'}
-                  onChange={() => setPriceRange('ALL')}
-                  className="text-[#000000] focus:ring-[#000000] h-4 w-4"
-                />
-                <span>All Prices</span>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-[#000000] font-black cursor-pointer bg-amber-400/20 p-2 rounded-xl border border-amber-400/50">
-                <input
-                  type="radio"
-                  name="price"
-                  checked={priceRange === 'STARTS_3000'}
-                  onChange={() => setPriceRange('STARTS_3000')}
-                  className="text-amber-600 focus:ring-amber-500 h-4 w-4"
-                />
-                <span className="flex items-center gap-1 text-black font-black">
-                  <Flame className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
-                  Starting @ ₹3,000 Deals
-                </span>
-                <span className="ml-auto text-[10px] font-black bg-amber-400 text-black px-1.5 py-0.5 rounded-md">
-                  {starting3000Count}
-                </span>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
-                <input
-                  type="radio"
-                  name="price"
-                  checked={priceRange === '3000_4000'}
-                  onChange={() => setPriceRange('3000_4000')}
-                  className="text-[#000000] focus:ring-[#000000] h-4 w-4"
-                />
-                <span>₹3,000 – ₹4,000</span>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-[#000000] font-bold cursor-pointer">
-                <input
-                  type="radio"
-                  name="price"
-                  checked={priceRange === 'ABOVE_4000'}
-                  onChange={() => setPriceRange('ABOVE_4000')}
-                  className="text-[#000000] focus:ring-[#000000] h-4 w-4"
-                />
-                <span>Above ₹4,000</span>
-              </label>
-            </div>
-          </div>
         </aside>
 
         {/* Right Catalog Area */}
@@ -285,19 +203,18 @@ function CatalogContent() {
           {/* Quick Filter Pill Buttons */}
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setPriceRange(priceRange === 'STARTS_3000' ? 'ALL' : 'STARTS_3000')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 shadow-xs ${
-                priceRange === 'STARTS_3000'
-                  ? 'bg-amber-500 text-black border-2 border-amber-600 ring-2 ring-amber-400/50'
-                  : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+              onClick={() => setSelectedCategory('ALL')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${
+                selectedCategory === 'ALL'
+                  ? 'bg-[#000000] text-[#FFFFFF] border-black'
+                  : 'bg-[#FAF6F0] text-[#000000] border-[#D8CEBE] hover:bg-[#ECE4DA]'
               }`}
             >
-              <Flame className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
-              <span>Starting @ ₹3,000 Deals ({starting3000Count})</span>
+              All Deliverables
             </button>
             <button
               onClick={() => setSelectedCategory(selectedCategory === 'MAJOR_FINAL_YEAR' ? 'ALL' : 'MAJOR_FINAL_YEAR')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${
                 selectedCategory === 'MAJOR_FINAL_YEAR'
                   ? 'bg-[#000000] text-[#FFFFFF] border-black'
                   : 'bg-[#FAF6F0] text-[#000000] border-[#D8CEBE] hover:bg-[#ECE4DA]'
@@ -307,7 +224,7 @@ function CatalogContent() {
             </button>
             <button
               onClick={() => setSelectedCategory(selectedCategory === 'MINI_PROJECT' ? 'ALL' : 'MINI_PROJECT')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${
                 selectedCategory === 'MINI_PROJECT'
                   ? 'bg-[#000000] text-[#FFFFFF] border-black'
                   : 'bg-[#FAF6F0] text-[#000000] border-[#D8CEBE] hover:bg-[#ECE4DA]'
@@ -317,30 +234,6 @@ function CatalogContent() {
             </button>
           </div>
 
-          {/* Highlight Banner when filtering by Starting 3000 */}
-          {priceRange === 'STARTS_3000' && (
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-400/25 via-amber-200/40 to-amber-100/30 border-2 border-amber-500 shadow-xs flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-amber-400 text-black shrink-0">
-                  <Sparkles className="h-4 w-4 fill-black" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-black">
-                    Showing Projects Starting From ₹3,000
-                  </h4>
-                  <p className="text-[11px] text-black/80 font-medium">
-                    Verified university deliverable packages including source code, IEEE report, and PPT slides for ₹3,000.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setPriceRange('ALL')}
-                className="px-3 py-1 rounded-full bg-black text-white text-[11px] font-bold hover:bg-neutral-800 shrink-0"
-              >
-                Clear Filter
-              </button>
-            </div>
-          )}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CEBE] shadow-xs">
             <span className="text-xs font-bold text-[#000000]">
               Showing <span className="font-extrabold">{filteredProjects.length}</span> Engineering Projects
@@ -356,8 +249,8 @@ function CatalogContent() {
                 className="bg-[#ECE4DA] border border-[#D8CEBE] text-[#000000] text-xs rounded-xl font-bold p-2 focus:outline-none focus:border-[#000000]"
               >
                 <option value="featured">Featured Projects</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
+                <option value="title_asc">Title: A to Z</option>
+                <option value="title_desc">Title: Z to A</option>
               </select>
             </div>
           </div>
@@ -374,7 +267,7 @@ function CatalogContent() {
               <p className="text-[#000000] text-sm font-bold">No projects found matching your selected filters.</p>
               <button
                 onClick={resetFilters}
-                className="mt-4 px-5 py-2.5 rounded-full bg-[#000000] text-[#FFFFFF] font-bold text-xs shadow-xs"
+                className="mt-4 px-5 py-2.5 bg-[#000000] text-[#FFFFFF] rounded-full text-xs font-extrabold cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -386,9 +279,16 @@ function CatalogContent() {
   );
 }
 
-export default function ProjectsCatalogPage() {
+export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-[#000000] text-sm font-bold">Loading Catalog...</div>}>
+    <Suspense
+      fallback={
+        <div className="py-24 text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-slate-900 border-t-transparent rounded-full mx-auto" />
+          <p className="mt-4 text-xs font-bold text-[#000000]/70">Loading projects catalog...</p>
+        </div>
+      }
+    >
       <CatalogContent />
     </Suspense>
   );

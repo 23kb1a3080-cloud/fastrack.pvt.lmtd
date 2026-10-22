@@ -3,8 +3,7 @@ export const instant = false;
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { BRANCHES, DEMO_PROJECTS } from '@/lib/constants';
-import { formatINR } from '@/lib/utils/currency';
-import { normalizeProject, isStartingTier } from '@/lib/utils/project';
+import { normalizeProject } from '@/lib/utils/project';
 import RazorpayButton from '@/components/checkout/razorpay-button';
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
@@ -12,9 +11,6 @@ import {
   FileCode,
   Presentation,
   CheckCircle2,
-  Zap,
-  Flame,
-  Sparkles,
   MessageCircle,
 } from 'lucide-react';
 
@@ -64,35 +60,9 @@ export default async function ProjectDetailsPage({
 
   const project = normalizeProject(rawProject);
   const branchInfo = BRANCHES.find((b) => b.id === project.branch);
-  const displayPrice = project.discounted_price_inr || project.price_inr;
-  const hasDiscount =
-    project.discounted_price_inr && project.discounted_price_inr < project.price_inr;
-  const isStarting3000 = displayPrice === 3000 || isStartingTier(project);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-[#ECE4DA] text-[#000000]">
-      {/* Starting 3000 Highlight Deal Banner */}
-      {isStarting3000 && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-400/30 via-amber-200/50 to-amber-100/30 border-2 border-amber-500 shadow-sm flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-400 text-black shrink-0 shadow-xs">
-              <Flame className="h-5 w-5 fill-black text-black" />
-            </div>
-            <div>
-              <span className="text-sm font-black text-black block">
-                Starting Price Package Deal — Flat ₹3,000 Special
-              </span>
-              <span className="text-xs text-black/80 font-medium">
-                Complete semester package with tested source code, IEEE standard report (.docx/PDF), viva presentation slides, and execution demo video.
-              </span>
-            </div>
-          </div>
-          <span className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-black shadow-xs shrink-0">
-            ₹3,000 DEAL
-          </span>
-        </div>
-      )}
-
       {/* Header Breadcrumb & Title */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold text-[#000000]/70">
@@ -110,11 +80,6 @@ export default async function ProjectDetailsPage({
           <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#FAF6F0] text-[#000000] border border-[#D8CEBE]">
             {project.category === 'MAJOR_FINAL_YEAR' ? 'Major Final Year Project' : 'Mini Project'}
           </span>
-          {isStarting3000 && (
-            <span className="px-3.5 py-1 rounded-full text-xs font-black bg-amber-400 text-black border border-amber-600/40 shadow-xs flex items-center gap-1">
-              <Sparkles className="h-3 w-3 fill-black text-black" /> Starting ₹3,000 Tier
-            </span>
-          )}
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-black text-[#000000] leading-tight">
@@ -191,34 +156,23 @@ export default async function ProjectDetailsPage({
           </div>
         </div>
 
-        {/* Right Column: Sticky Pricing & Payment Card */}
+        {/* Right Column: Sticky Deliverable & Order Card */}
         <div className="lg:col-span-1">
-          <div className={`sticky top-24 p-6 sm:p-8 rounded-3xl bg-[#FAF6F0] space-y-6 shadow-md ${
-            isStarting3000 ? 'border-2 border-amber-500 ring-2 ring-amber-400/40' : 'border border-[#D8CEBE]'
-          }`}>
+          <div className="sticky top-24 p-6 sm:p-8 rounded-3xl bg-[#FAF6F0] space-y-6 shadow-md border border-[#D8CEBE]">
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-black text-[#000000]/80 uppercase tracking-wider block">
-                  Instant Download Deliverable
+                  Complete Deliverables Package
                 </span>
-                {isStarting3000 && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-black border border-amber-600/30">
-                    STARTS @ ₹3,000
-                  </span>
-                )}
-              </div>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className={`text-3xl font-black ${isStarting3000 ? 'text-amber-900' : 'text-[#000000]'}`}>
-                  {formatINR(displayPrice)}
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-800 border border-emerald-500/20">
+                  VERIFIED
                 </span>
-                {hasDiscount && (
-                  <span className="text-sm text-[#000000]/50 line-through font-bold">
-                    {formatINR(project.price_inr)}
-                  </span>
-                )}
               </div>
+              <h3 className="text-xl font-black text-[#000000] mt-2">
+                Source Code, IEEE Report & PPT
+              </h3>
               <span className="text-xs text-[#000000]/70 font-bold block mt-1">
-                {isStarting3000 ? '🔥 Best Starter Value • Direct WhatsApp Delivery' : 'Direct WhatsApp Order • Instant Deliverables & Support'}
+                Direct WhatsApp Order • Instant Deliverables & Support
               </span>
             </div>
 
@@ -226,7 +180,6 @@ export default async function ProjectDetailsPage({
             <RazorpayButton
               projectId={project.id}
               projectTitle={project.title}
-              priceInr={displayPrice}
             />
 
             {/* Deliverables checklist */}

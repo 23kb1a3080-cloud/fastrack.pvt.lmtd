@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { formatINR } from '@/lib/utils/currency';
 import { MessageCircle, CheckCircle2, Sparkles, X, ArrowRight, Lock, LogIn, UserPlus, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -13,7 +12,7 @@ const DISPLAY_PHONE = '+91 73823 24346';
 interface RazorpayButtonProps {
   projectId: string;
   projectTitle: string;
-  priceInr: number;
+  priceInr?: number;
   className?: string;
 }
 
@@ -73,9 +72,8 @@ export default function RazorpayButton({
   const getWhatsAppMessage = (nameVal?: string, phoneVal?: string, emailVal?: string) => {
     return (
       `Hi Capstonia Projects! 👋\n` +
-      `I want to order this engineering project package:\n\n` +
+      `I want to inquire & order this engineering project package:\n\n` +
       `📦 Project: ${projectTitle}\n` +
-      `💰 Package Price: ${formatINR(priceInr)}\n` +
       `👤 Student Name: ${nameVal?.trim() || user?.name || 'Engineering Student'}\n` +
       `📱 WhatsApp: ${phoneVal?.trim() || user?.phone || 'My WhatsApp Number'}\n` +
       `✉️ Student Account Email: ${emailVal?.trim() || user?.email || 'N/A'}\n` +
@@ -84,7 +82,7 @@ export default function RazorpayButton({
       `• IEEE Format Project Report (.docx/PDF)\n` +
       `• Seminar Viva PPT Presentation\n` +
       `• Video Execution Walkthrough & Setup Guide\n\n` +
-      `Please confirm the order and share delivery details directly here on WhatsApp.`
+      `Please confirm availability and share order details directly here on WhatsApp.`
     );
   };
 
@@ -106,9 +104,9 @@ export default function RazorpayButton({
         phone: phone.trim() || user?.phone || 'WhatsApp Direct',
         branch: 'CSE',
         category: 'DIRECT_ORDER',
-        project_title: `ORDER: ${projectTitle} (${formatINR(priceInr)})`,
+        project_title: `ORDER: ${projectTitle}`,
         description: `Verified Student Order for project: ${projectTitle} (User: ${user?.email || 'N/A'})`,
-        budget: `${formatINR(priceInr)}`,
+        budget: 'WhatsApp Inquiry',
         status: 'PENDING',
       });
     } catch (err) {
@@ -123,7 +121,7 @@ export default function RazorpayButton({
         orderId: `WA-${Date.now().toString().slice(-6)}`,
         projectId,
         projectTitle,
-        amount: priceInr,
+        amount: 0,
         createdAt: new Date().toISOString(),
         buyerEmail: email || user?.email || phone,
         status: 'WHATSAPP_ORDER',
@@ -151,7 +149,7 @@ export default function RazorpayButton({
           <svg className="w-5 h-5 fill-white shrink-0" viewBox="0 0 32 32" aria-hidden="true">
             <path d="M16.002 2C8.269 2 2 8.27 2 16.002c0 2.658.742 5.228 2.152 7.461L2.05 30.014l6.732-2.073A13.93 13.93 0 0 0 16.002 30C23.733 30 30 23.732 30 16.002 30 8.27 23.733 2 16.002 2zm7.644 19.832c-.32.898-1.59 1.656-2.586 1.871-.68.148-1.57.266-4.555-.973-3.816-1.586-6.28-5.46-6.473-5.715-.187-.258-1.547-2.062-1.547-3.934 0-1.871.977-2.793 1.328-3.176.352-.383.766-.48 1.023-.48.258 0 .512.004.738.016.242.012.566-.094.887.676.328.789 1.125 2.742 1.223 2.941.098.2.164.434.031.691-.133.258-.2.418-.398.652-.199.234-.418.523-.598.703-.2.2-.41.418-.176.82.234.398 1.043 1.723 2.234 2.785 1.535 1.367 2.832 1.793 3.23 1.992.398.2.633.168.867-.098.234-.266.996-1.16 1.262-1.559.266-.398.531-.332.898-.2.367.133 2.332 1.1 2.73 1.3.398.2.664.297.766.465.098.172.098.992-.223 1.89z" />
           </svg>
-          <span>Order via WhatsApp — {formatINR(priceInr)}</span>
+          <span>Order via WhatsApp</span>
         </button>
 
         <p className="text-center text-[11px] text-[#000000]/70 font-bold flex items-center justify-center gap-1">
@@ -230,7 +228,7 @@ export default function RazorpayButton({
                 </span>
                 <h3 className="text-lg font-black text-[#000000]">Order Project Package</h3>
                 <p className="text-xs text-[#000000]/80 font-medium">
-                  {projectTitle} — <strong className="text-black">{formatINR(priceInr)}</strong>
+                  {projectTitle}
                 </p>
               </div>
               <button

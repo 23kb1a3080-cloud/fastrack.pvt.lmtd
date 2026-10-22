@@ -97,11 +97,6 @@ export default async function AdminDashboardPage() {
                   <td className="p-3 font-extrabold text-slate-900">
                     <div className="flex items-center gap-2">
                       <span>{formatINR(project.discounted_price_inr || project.price_inr)}</span>
-                      {(project.discounted_price_inr || project.price_inr) === 3000 && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-black border border-amber-600/30">
-                          Starts @ ₹3,000
-                        </span>
-                      )}
                     </div>
                   </td>
                   <td className="p-3">{project.download_count} downloads</td>

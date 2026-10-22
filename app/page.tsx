@@ -29,19 +29,17 @@ export default async function HomePage() {
   }
 
   const featuredProjects = allPublished.filter((p) => p.is_featured);
-  const starting3000Projects = allPublished.filter(
-    (p) => (p.discounted_price_inr || p.price_inr) === 3000
-  );
+  const spotlightProjects = featuredProjects.length > 0 ? featuredProjects : allPublished;
 
   return (
     <div className="space-y-20 pb-24 bg-[#ECE4DA] text-[#000000]">
       {/* Hero Section */}
       <section className="relative pt-16 md:pt-24 pb-16 bg-[#F5EFE6] border-b border-[#D8CEBE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Highlight Starting From 3000 Trust Badge */}
+          {/* Highlight Trust Badge */}
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-amber-400/20 border-2 border-amber-500 text-[#000000] text-xs font-black mb-6 shadow-sm hover:scale-105 transition-transform">
             <Sparkles className="h-4 w-4 text-amber-700 fill-amber-500" />
-            <span>Verified B.Tech / B.E. Projects • <strong className="text-black font-black underline decoration-amber-500">Starting From ₹3,000</strong></span>
+            <span>Verified B.Tech / B.E. Projects • <strong className="text-black font-black underline decoration-amber-500">100% Tested & Complete</strong></span>
           </div>
 
           {/* Title */}
@@ -77,14 +75,14 @@ export default async function HomePage() {
             </form>
           </div>
 
-          {/* Quick Search Chips with Highlighted Starting 3000 Deal */}
+          {/* Quick Search Chips */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-[#000000]/80">
             <Link
-              href="/projects?price=STARTS_3000"
+              href="/projects"
               className="px-3.5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-black border-2 border-amber-600 flex items-center gap-1.5 shadow-xs transition-transform hover:scale-105"
             >
               <Flame className="h-3.5 w-3.5 fill-black text-black" />
-              <span>Projects Starting @ ₹3,000</span>
+              <span>Popular Projects</span>
             </Link>
             <span className="text-[#000000]/40">|</span>
             <Link href="/branches/CSE" className="hover:underline">CSE Web Apps</Link>
@@ -152,33 +150,33 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Starting From ₹3,000 Spotlight Section */}
+      {/* Featured Projects Spotlight Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-50/80 via-[#FAF6F0] to-amber-100/40 border-2 border-amber-500/80 shadow-md">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-black text-xs font-black mb-2 shadow-xs border border-amber-600/30">
                 <Flame className="h-3.5 w-3.5 fill-black text-black" />
-                <span>HOT STARTER PACKAGES • FLAT ₹3,000</span>
+                <span>FEATURED DELIVERABLES • READY FOR VIVA</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#000000]">
-                Highlighted Projects Starting From ₹3,000
+                Highlighted Engineering Projects
               </h2>
               <p className="text-sm text-[#000000]/80 mt-1 font-medium max-w-2xl">
-                Best value ready-to-run projects designed for immediate semester viva submission. Includes complete tested source code ZIP, IEEE formatted report, and ready PPT presentation slides.
+                Ready-to-run projects designed for immediate semester viva submission. Includes complete tested source code ZIP, IEEE formatted report, and ready PPT presentation slides.
               </p>
             </div>
             <Link
-              href="/projects?price=STARTS_3000"
+              href="/projects"
               className="px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-black text-xs font-black transition-all flex items-center gap-2 shadow-sm shrink-0"
             >
-              <span>View All ₹3,000 Projects ({starting3000Projects.length})</span>
+              <span>View All Projects ({allPublished.length})</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {starting3000Projects.slice(0, 3).map((project) => (
+            {spotlightProjects.slice(0, 3).map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>

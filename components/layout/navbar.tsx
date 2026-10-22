@@ -56,19 +56,19 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-[#ECE4DA]/95 backdrop-blur-md border-b border-[#D8CEBE] shadow-xs">
-      {/* Starting from ₹3,000 Top Announcement Bar */}
+      {/* Top Announcement Bar */}
       <div className="bg-gradient-to-r from-neutral-950 via-amber-950 to-neutral-950 text-white text-[11px] sm:text-xs py-2 px-4 text-center font-bold border-b border-amber-500/30 flex items-center justify-center gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-black tracking-wider uppercase">
-          Special Deal
+          Verified Deliverables
         </span>
         <span className="text-amber-100 font-medium">
-          Engineering Projects starting from just <strong className="text-amber-400 font-extrabold underline decoration-amber-400">₹3,000</strong> — Verified Code, IEEE Report & PPT Included!
+          Complete Engineering Projects with Verified Code, IEEE Report & PPT Included!
         </span>
         <Link
-          href="/projects?price=STARTS_3000"
+          href="/projects"
           className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-[11px] shadow-xs transition-colors ml-1"
         >
-          <span>View ₹3,000 Projects</span>
+          <span>Explore Projects</span>
           <span>→</span>
         </Link>
       </div>
